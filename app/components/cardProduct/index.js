@@ -5,12 +5,14 @@ import {
   Image,
   ImageBackground,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Animated,
   LayoutAnimationAnim,
   Easing
 } from "react-native";
+
+import { TouchableHighlight, TouchableOpacity } from "react-native";
+
 import { width, height, wp, itemProductHorizontal, colors } from "../../styles";
 
 import love from "../../assets/icons/png/love_shash.png";
@@ -97,65 +99,71 @@ export class CardProduct extends React.Component {
       name,
       price,
       descont,
+      product,
       like,
+      onScreen,
       activeLikeProduct
     } = this.props;
 
     return (
       <View style={styles.cardProduct}>
-        <ImageBackground
-          source={{ uri: image[0] }}
-          resizeMode="cover"
-          style={styles.productImage}
-        >
-          <LinearGradient
-            colors={["transparent", "transparent", "rgba(0,0,0,0.6)"]}
-            style={{
-              flex: 1,
-              alignSelf: "stretch",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}
+        <TouchableHighlight onPress={() => onScreen(product)}>
+          <ImageBackground
+            source={{ uri: image[0] }}
+            resizeMode="cover"
+            style={styles.productImage}
           >
-            <View style={styles.productOn}>
-              {this.descontActive(descont)}
+            <LinearGradient
+              colors={["transparent", "transparent", "rgba(0,0,0,0.6)"]}
+              style={{
+                flex: 1,
+                alignSelf: "stretch",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+            >
+              <View style={styles.productOn}>
+                {this.descontActive(descont)}
 
-              <TouchableOpacity
-                onPress={() => {
-                  activeLikeProduct(id);
-                }}
-                onPressOut={this.animateLike.bind(this)}
-              >
-                <Animated.View style={animateLikeTransform}>
-                  <Image
-                    style={{ width: 35, height: 35, marginLeft: "auto" }}
-                    source={this.activeLike(like)}
-                  />
-                </Animated.View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.productDown}>
-              <Text style={styles.textName}>{name}</Text>
-
-              <View style={styles.productPrice}>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    paddingRight: 2,
-                    color: "white",
-                    fontWeight: "500",
-                    fontFamily: "Roboto"
+                <TouchableOpacity
+                  onPress={() => {
+                    activeLikeProduct(id);
                   }}
+                  onPressOut={this.animateLike.bind(this)}
                 >
-                  {" "}
-                  R${" "}
-                </Text>
-                <Text style={styles.textPrice}>{this.priceFormat(price)}</Text>
+                  <Animated.View style={animateLikeTransform}>
+                    <Image
+                      style={{ width: 35, height: 35, marginLeft: "auto" }}
+                      source={this.activeLike(like)}
+                    />
+                  </Animated.View>
+                </TouchableOpacity>
               </View>
-            </View>
-          </LinearGradient>
-        </ImageBackground>
+
+              <View style={styles.productDown}>
+                <Text style={styles.textName}>{name}</Text>
+
+                <View style={styles.productPrice}>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      paddingRight: 2,
+                      color: "white",
+                      fontWeight: "500",
+                      fontFamily: "Roboto"
+                    }}
+                  >
+                    {" "}
+                    R${" "}
+                  </Text>
+                  <Text style={styles.textPrice}>
+                    {this.priceFormat(price)}
+                  </Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </ImageBackground>
+        </TouchableHighlight>
       </View>
     );
   }

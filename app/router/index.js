@@ -15,6 +15,7 @@ import AuthLoading from "../views/AuthLoading";
 import Auth from "../views/login/index";
 import App from "../views/app/index";
 import Produtcs from "../views/Produts";
+import Product from "../views/Product";
 import FilterProducts from "../views/FilterProducts";
 import FilterTypes from "../views/FilterProducts/screen/FilterTypes";
 import FilterColors from "../views/FilterProducts/screen/FilterColors";
@@ -109,6 +110,12 @@ const routerApp = createStackNavigator(
     },
     Produtcs: {
       screen: Produtcs
+    },
+    Product: {
+      screen: Product,
+      navigationOptions: {
+        header: null
+      }
     },
     FilterProducts: {
       screen: FilterProducts,

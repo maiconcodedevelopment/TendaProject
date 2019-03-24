@@ -25,6 +25,7 @@ import { userAddProduct } from "../../redux/actions/Products";
 //routes dispatch
 import { navigationActionFilterProducts } from "../../router/actions/FilterProducts";
 import HeaderSearch from "../../components/header";
+import { navigationActionProduct } from "../../router/actions/Product";
 
 class Produtcs extends React.Component {
   static navigationOptions = {
@@ -86,6 +87,11 @@ class Produtcs extends React.Component {
     );
   }
 
+  onScreenProduct(product) {
+    const { navigation } = this.props;
+    navigation.dispatch(navigationActionProduct(product));
+  }
+
   render() {
     const { products } = this.props.products;
     const { refreging } = this.state;
@@ -125,6 +131,8 @@ class Produtcs extends React.Component {
               price={item.price}
               descont={item.descont}
               image={item.images}
+              product={item}
+              onScreen={this.onScreenProduct.bind(this)}
               activeLikeProduct={this.activeLikeProduct.bind(this)}
             />
           )}

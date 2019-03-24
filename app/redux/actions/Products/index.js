@@ -1,6 +1,13 @@
-import { initialStateProducts } from "./state";
-import { requestProducts, requestCategoryProducts } from "./request";
-import { ProductsModel } from "../../model/ProductsModel";
+import {
+  initialStateProducts
+} from "./state";
+import {
+  requestProducts,
+  requestCategoryProducts
+} from "./request";
+import {
+  ProductsModel
+} from "../../model/ProductsModel";
 
 export default function actionProducts(state = initialStateProducts, action) {
   console.log(action);
@@ -13,8 +20,23 @@ export default function actionProducts(state = initialStateProducts, action) {
       return state;
       break;
 
+    case "REQUEST_SEARCH_PRODUCTS":
+      return {
+        ...state
+      }
+      break;
+
+    case "REQUEST_GET_PRODUCT":
+      // let product = state.products.filter(product => product.id === action.payload)
+      return {
+        ...state
+      }
+      break;
+
     case "REQUEST_PRODUCTS_CATEGORY":
-      const { categorys } = state;
+      const {
+        categorys
+      } = state;
 
       let resetcategorys = categorys.map(category => ({
         ...category,
@@ -43,7 +65,9 @@ export default function actionProducts(state = initialStateProducts, action) {
       break;
     case "REQUEST_ADD_PRODUCT":
       console.log(action);
-      let { products } = state;
+      let {
+        products
+      } = state;
       let product = products.filter(
         product => product.id === action.payload
       )[0];
@@ -85,12 +109,11 @@ export default function actionProducts(state = initialStateProducts, action) {
       console.log(action.payload);
 
       let newlistcategorys = state.categorys.map(category =>
-        category.id === action.payload
-          ? {
-              ...category,
-              active: !category.active
-            }
-          : category
+        category.id === action.payload ? {
+          ...category,
+          active: !category.active
+        } :
+        category
       );
 
       let categoryselement = newlistcategorys.filter(
@@ -142,7 +165,7 @@ export default function actionProducts(state = initialStateProducts, action) {
         );
         listColorCategory = state.filter.colors.filter(
           item =>
-            newListColor.filter(c => c.id === item.id && c.active).length === 0
+          newListColor.filter(c => c.id === item.id && c.active).length === 0
         );
 
         console.log("colors list");
@@ -174,7 +197,7 @@ export default function actionProducts(state = initialStateProducts, action) {
         let algu = action.payload.map(itemtype => {
           if (
             state.types.filter(type => type.idcategory === itemtype.idcategory)
-              .length > 0
+            .length > 0
           ) {
             let stateData = itemtype.data;
 
@@ -224,9 +247,11 @@ export default function actionProducts(state = initialStateProducts, action) {
         return {
           ...itemtype,
           data: itemtype.data.map(item =>
-            item.id === action.payload
-              ? { ...item, active: !item.active }
-              : item
+            item.id === action.payload ? {
+              ...item,
+              active: !item.active
+            } :
+            item
           )
         };
       });
@@ -234,17 +259,17 @@ export default function actionProducts(state = initialStateProducts, action) {
       const type = types
         .filter(
           itemtype =>
-            itemtype.data.filter(item => item.id === action.payload).length > 0
+          itemtype.data.filter(item => item.id === action.payload).length > 0
         )
         .map(item => item.data)[0]
         .filter(item => item.id == action.payload)[0];
 
       if (state.filter.types.length > 0) {
         let filtertypes = state.filter.types.find(
-          type => type.id === action.payload
-        )
-          ? true
-          : false;
+            type => type.id === action.payload
+          ) ?
+          true :
+          false;
 
         if (filtertypes) {
           filtertypes = state.filter.types.filter(
@@ -290,22 +315,21 @@ export default function actionProducts(state = initialStateProducts, action) {
       break;
     case "FILER_COLOR_ADD":
       const colors = state.colors.map(color =>
-        color.id == action.payload
-          ? {
-              ...color,
-              active: !color.active
-            }
-          : color
+        color.id == action.payload ? {
+          ...color,
+          active: !color.active
+        } :
+        color
       );
 
       const color = colors.filter(color => color.id == action.payload)[0];
 
       if (state.filter.colors.length > 0) {
         let filtercolors = state.filter.colors.find(
-          color => color.id == action.payload
-        )
-          ? true
-          : false;
+            color => color.id == action.payload
+          ) ?
+          true :
+          false;
 
         if (filtercolors) {
           filtercolors = state.filter.colors.filter(
@@ -344,6 +368,11 @@ export const productAll = quantity => ({
   type: "REQUEST_PRODUCTS",
   payload: quantity
 });
+
+export const getProductId = id => ({
+  type: "REQUEST_GET_PRODUCT",
+  payload: id
+})
 
 export const categoryProductAll = (categoryId, products) => ({
   type: "REQUEST_PRODUCTS_CATEGORY",

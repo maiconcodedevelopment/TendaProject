@@ -30,9 +30,11 @@ export const itemWidth = sliderWidth + itemHorizontalMargin * 2;
 
 export const colors = {
     slashStrong: "#ff0a44",
+    lightSlash: "#ff0d46",
     lightGreen: "#65ff70",
     blackDark: "",
     lightPurple: "#1e0a1e",
+
 
 }
 

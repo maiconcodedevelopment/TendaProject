@@ -1,13 +1,7 @@
-var url = "http://10.0.2.2:8000";
+import {
+    request
+} from "../../../../config/requestConfig";
 
-var request = {
-    users: {
-        productadd: url + "/api/users/productadd"
-    },
-    category: {
-        subcategory: url + "/category/categorywithsubcategory"
-    }
-};
 
 export function requestProducts() {
     return fetch("http://10.0.2.2:8000/product/all", {
@@ -40,6 +34,12 @@ export function requestAddProduct(iduser, idproduct) {
         },
         body: data
     });
+}
+
+export function requestProductSearch(url) {
+    return fetch(url, {
+        method: "GET"
+    }).then(response => response.json())
 }
 
 //filter products
