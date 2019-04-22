@@ -2,6 +2,8 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { LinearGradient, Font } from "expo";
 
+let color1 =  "#130e1b/#1f0322"
+
 export default class ContainerLayout extends React.Component {
   async componentDidMount() {
     await Font.loadAsync({
@@ -14,7 +16,7 @@ export default class ContainerLayout extends React.Component {
     return (
       <View style={styles.containerCenter}>
         <LinearGradient
-          colors={["#130e1b", "#1f0322"]}
+          colors={["#130e1b", "#560a5f"]}
           style={this.props.style}
         >
           {this.props.children}

@@ -8,7 +8,8 @@ import {
   TextInput,
   Easing,
   Platform,
-  StyleSheet
+  StyleSheet,
+  Keyboard
 } from "react-native";
 
 // create a component
@@ -26,6 +27,7 @@ export default class CenterElement extends React.Component {
     if (this.props.isSearchActive !== nextProps.isSearchActive) {
       this.animatedElements(nextProps.isSearchActive);
     }
+
   }
 
   animatedElements = nextIsSearchActive => {
@@ -52,6 +54,7 @@ export default class CenterElement extends React.Component {
     const {
       title,
       onSearchTextChange,
+      onSearchSubmit,
       searchValue,
       isSearchActive
     } = this.props;
@@ -65,6 +68,9 @@ export default class CenterElement extends React.Component {
       content = (
         <TextInput
           onChangeText={onSearchTextChange}
+          returnKeyType="done"
+          autoCorrect={true}
+          onSubmitEditing={() => onSearchSubmit(searchValue)}
           value={searchValue}
         />
       );

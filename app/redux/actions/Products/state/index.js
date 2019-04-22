@@ -1,5 +1,8 @@
 export const initialStateProducts = {
+    promotions : [],
+    promotionsProduct : [],
     products: [],
+    searchProducts : [],
     categorys: [{
         icon: require("../../../../assets/icons/png/penis_white.png"),
         icondark: require("../../../../assets/icons/png/vibrador_dark.png"),

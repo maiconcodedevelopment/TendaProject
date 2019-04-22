@@ -50,14 +50,14 @@ export default class CardCategorySpotlight extends React.Component {
       <BoxShadow setting={shadowStyle}>
         <TouchableWithoutFeedback onPress={onTouchSpotlight}>
           <ImageBackground
-            source={spotlight}
+            source={{ uri : spotlight }}
             resizeMode="cover"
             resizeMethod="resize"
             style={styles.cardCategorySpotlight}
           >
             <BoxShadow setting={shadowCategoryType}>
               <View style={styles.cardCategoryType}>
-                <Image style={{ width: 28, height: 28 }} source={icon} />
+                <Image style={{ width: 28, height: 28 }} source={{uri :  icon}} />
               </View>
             </BoxShadow>
           </ImageBackground>

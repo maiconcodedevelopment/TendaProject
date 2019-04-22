@@ -15,13 +15,14 @@ import AuthLoading from "../views/AuthLoading";
 import Auth from "../views/login/index";
 import App from "../views/app/index";
 import Produtcs from "../views/Produts";
+import SearchProducts from "../views/SearchProducts"
 import Product from "../views/Product";
 import FilterProducts from "../views/FilterProducts";
 import FilterTypes from "../views/FilterProducts/screen/FilterTypes";
 import FilterColors from "../views/FilterProducts/screen/FilterColors";
 import Cart from "../views/Cart";
 
-import { Sidebar } from "../components/drawer";
+import  Sidebar from "../components/drawer";
 
 let transitionConfiguration = () => {
   return {
@@ -111,11 +112,11 @@ const routerApp = createStackNavigator(
     Produtcs: {
       screen: Produtcs
     },
+    SearchProducts : {
+      screen : SearchProducts,
+    },
     Product: {
       screen: Product,
-      navigationOptions: {
-        header: null
-      }
     },
     FilterProducts: {
       screen: FilterProducts,

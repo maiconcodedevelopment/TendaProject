@@ -4,7 +4,7 @@ import { View, Text, Dimensions, ScrollView, Alert } from "react-native";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-import { productAll, categoryProductAll } from "../../redux/actions/Products";
+import { productAll, categoryProductAll , promotionsAddProduct , promotionsMain } from "../../redux/actions/Products";
 
 import Carrosel from "react-native-snap-carousel";
 import ContainerLayout from "../../components/containerLayout";
@@ -17,28 +17,32 @@ import {
   sliderWidth,
   itemHorizontalMargin,
   itemWidth,
-  wp
+  wp,
+  colors
 } from "../../styles";
 
 import CardSelectCategory from "../../components/cardSelectCategory";
 import CardCategorySpotlight from "../../components/cardCategorySpotlight";
 
 //actions route
-import { navigationActionProdutcs } from "../../router/actions/Produtcs";
-import { requestCategoryProducts } from "../../redux/actions/Products/request";
+import { navigationActionProdutcs  } from "../../router/actions/Produtcs";
+import { requestCategoryProducts , requestPromotionsProduct, requestPromotionMain } from "../../redux/actions/Products/request";
 import { ProductsModel } from "../../redux/model/ProductsModel";
 import { URLModel } from "../../redux/model/URLModel";
 import { request } from "../../config/requestConfig";
 import HeaderSearch from "../../components/header";
+import { navigationActionProduct } from "../../router/actions/Product";
 
 class App extends React.Component {
-  static navigationOptions = {
+
+  static navigationOptions = ({ navigation }) => ({
     title: "App",
-    header: <HeaderSearch />
-  };
+    header: <HeaderSearch navigation={navigation} onPress={() => navigation.toggleDrawer()} />
+  });
 
   constructor(state) {
     super(state);
+    console.log("bnai")
     this.state = {
       entries: [
         {
@@ -60,8 +64,21 @@ class App extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.props.productAll(10);
+  onPressNavigation = () => {
+    console.log("sim")
+  }
+
+  async componentDidMount() {
+    // this.props.productAll(10);
+    console.log("simsimsim")
+    await requestPromotionMain().then((response) => {
+      this.props.promotionsMain(response)
+    })
+    await requestPromotionsProduct().then((response) => {
+       console.log(response)
+       this.props.promotionsAddProduct(response)
+    })
+
   }
 
   onTouchSelectCategory(id) {
@@ -76,15 +93,19 @@ class App extends React.Component {
     // products.pushUser(1);
     // products.pushCategorys({ categorys: [id] });
 
+
     requestCategoryProducts(products.getURL()).then(response => {
       this.props.categoryProductAll(id, response);
       navigation.dispatch(navigationActionProdutcs);
     });
+
+
   }
 
-  onTouchSpotlight() {
-    Alert.alert("Aperto");
-    this.props.products.then(value => console.warn(value));
+  onTouchSpotlight = (product) => {
+    const { navigation } = this.props
+    navigation.dispatch(navigationActionProduct(product));
+    
   }
 
   _renderItem({ item, index }) {
@@ -92,12 +113,15 @@ class App extends React.Component {
       <CardCarrosel
         key={index}
         title={item.title}
+        image={item.image}
         description={item.description}
       />
     );
   }
 
   render() {
+    const { promotionsProduct , promotions } = this.props
+   
     return (
       <ContainerLayout
         style={{
@@ -114,7 +138,7 @@ class App extends React.Component {
           <View style={{ width, height: sliderHeight, marginTop: 10 }}>
             <Carrosel
               ref={c => (this._carosel = c)}
-              data={this.state.entries}
+              data={promotions}
               layout={"default"}
               loop={true}
               renderItem={this._renderItem}
@@ -175,47 +199,24 @@ class App extends React.Component {
             </ScrollView>
           </View>
 
+          <Text style={{ paddingLeft : 25 , color : "white" , fontWeight : "bold" , fontSize : 15 , marginBottom : 15 }} >Promoções</Text>
+
           <View style={{ height: 190 }}>
             <ScrollView
               horizontal={true}
               contentContainerStyle={{ flexGrow: 1, paddingLeft: 25 }}
               showsHorizontalScrollIndicator={false}
             >
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/mastubador_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/comestico_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/penis_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/sata_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/vibrador_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/anal_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
-              <CardCategorySpotlight
-                icon={require("../../assets/icons/png/vestido_shash.png")}
-                spotlight={require("../../assets/img/cardCategorySpotlight/promotion.jpg")}
-                onTouchSpotlight={this.onTouchSpotlight.bind(this)}
-              />
+            {
+              promotionsProduct.map((promotion,index) => (
+                <CardCategorySpotlight
+                key={index}
+                icon={promotion.category.icon}
+                spotlight={promotion.image}
+                onTouchSpotlight={() => this.onTouchSpotlight(promotion.product)}
+                />
+              ))
+            }
             </ScrollView>
           </View>
         </ScrollView>
@@ -225,11 +226,11 @@ class App extends React.Component {
 }
 
 const mapStateProps = state => {
-  return { products: state.products, categorys: state.products.categorys };
+  return { products: state.products, categorys: state.products.categorys , promotionsProduct : state.products.promotionsProduct , promotions : state.products.promotions };
 };
 
 const mapDispatchProps = dispatch =>
-  bindActionCreators({ productAll, categoryProductAll }, dispatch);
+  bindActionCreators({ productAll, categoryProductAll , promotionsAddProduct , promotionsMain }, dispatch);
 
 export default connect(
   mapStateProps,

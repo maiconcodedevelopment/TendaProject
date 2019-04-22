@@ -105,11 +105,13 @@ export class CardProduct extends React.Component {
       activeLikeProduct
     } = this.props;
 
+    let images = image.length > 0 ? image[0] : null
+
     return (
       <View style={styles.cardProduct}>
         <TouchableHighlight onPress={() => onScreen(product)}>
           <ImageBackground
-            source={{ uri: image[0] }}
+            source={{ uri: images }}
             resizeMode="cover"
             style={styles.productImage}
           >

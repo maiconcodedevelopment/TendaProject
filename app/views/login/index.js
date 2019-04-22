@@ -2,18 +2,27 @@ import React from "react";
 import {
   StyleSheet,
   View,
+  Text,
   TextInput,
   Button,
   Image,
+  TouchableOpacity,
   Dimensions,
+  ScrollView,
   AsyncStorage,
   TouchableWithoutFeedback
 } from "react-native";
 
 import { StackActions, NavigationActions } from "react-navigation";
 
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux";
+
+import { userSetState } from "../../redux/actions/Users";
+
 import { LinearGradient, Font } from "expo";
 import { navigationAppAction } from "../../router/actions/App";
+import { requestLoginIn, requestRegister } from "../../redux/actions/Users/request";
 
 const width = Dimensions.get("screen").width;
 const height = Dimensions.get("screen").height;
@@ -29,17 +38,32 @@ const resetAction = StackActions.reset({
   actions: [NavigationActions.navigate({ routeName: "App" })]
 });
 
-export default class Login extends React.Component {
+class Login extends React.Component {
   constructor(state) {
     super(state);
     this.state = {
+      activeLoginIn : true,
+      view : "login",
+      views : [
+        {
+          name : "login"
+        },
+        {
+          name : "register"
+        }
+      ],
       user: {
-        data: "",
-        password: ""
+        username : "",
+        email: "",
+        password: "",
       }
     };
 
     console.warn(this.props);
+  }
+
+  componentWillUpdate(){
+    
   }
 
   async componentDidMount() {
@@ -52,51 +76,146 @@ export default class Login extends React.Component {
     console.warn("sim");
   }
 
-  async onLogin() {
-    await AsyncStorage.setItem("user", JSON.stringify(this.state.user));
-    await AsyncStorage.getItem("user").then(user => console.warn(user));
+  onUpdateInputs = () =>{
+    console.log(this.state)
+    const { view } = this.state
+    const { email, password , username } = this.state.user
+    if(( email.length > 0 && password.length > 0) || (email.length > 0 && password.length > 0 && username.length > 0 && view === "register") ){
+      this.onActriveLoginIn(false) 
+    }else{
+      this.onActriveLoginIn(true) 
+    }
+  }
 
-    this.props.navigation.dispatch(navigationAppAction);
+  dispatchView = (view) => {
+    this.setState((state) => {
+      return{
+        view,
+        user : {
+          ...state.user,
+          username : "",
+          email : "",
+          password : ""
+        }
+      }
+    },() => {
+      this.onUpdateInputs()
+    })
+  }
+
+  onActriveLoginIn(value){
+    this.setState((state) => {
+      return{
+        activeLoginIn : value
+      }
+    })
+  }
+
+  async onLogin() {
+    const { view , user } = this.state
+    const { userSetState } = this.props
+    if(view === "login"){
+      await requestLoginIn(user).then(({ response }) => {
+        // console.log(response)
+        const { id } = response
+        console.log("kakak",id,"klakakak")
+        userSetState(response)
+        AsyncStorage.setItem("user", JSON.stringify(id)).then(() => {
+          this.props.navigation.dispatch(navigationAppAction);
+        });
+      }).catch(() => {
+        console.log("not found login")
+      })
+    }else if(view === "register"){
+      await requestRegister(user).then(({ response }) => {
+        const { id } = response
+        console.log("kakak",id,"klakakak")
+        userSetState(response)
+        AsyncStorage.setItem("user", JSON.stringify(id)).then(() => {
+          this.props.navigation.dispatch(navigationAppAction);
+        });
+
+      }).catch(() => {
+        console.log("not fount reigister")
+      })
+    }
+    // await AsyncStorage.setItem("user", JSON.stringify(this.state.user));
+
   }
 
   render() {
+    const { activeLoginIn , views , view } = this.state
+    const { username , email , password } = this.state.user
+
+    var buttonName = view
+
     return (
       <View style={styles.container}>
+      <ScrollView contentContainerStyle={{
+            flex : 1,
+             }} showsVerticalScrollIndicator={false} >
         <LinearGradient
-          colors={["#130e1b", "#1f0322"]}
+          colors={["#330838", "#1e0421"]}
           style={{
             flex: 1,
-            width,
+            width, 
             alignItems: "center",
             justifyContent: "center"
           }}
         >
-          <Image
+        <Image
             style={styles.logo}
             source={require("../../assets/img/main-logo.png")}
           />
-          <View style={styles.inputLogin}>
-            <TextInput
-              style={styles.inputTextLogin}
-              placeholder="Login"
-              underlineColorAndroid="#3e0644"
-              onChangeText={text =>
-                this.setState({ user: { ...this.state.user, data: text } })
-              }
-            />
-          </View>
-          <View style={styles.inputLogin}>
-            <TextInput
-              style={styles.inputTextLogin}
-              placeholder="Senha"
-              underlineColorAndroid="#3e0644"
-              secureTextEntry={true}
-              onChangeText={text =>
-                this.setState({ user: { ...this.state.user, password: text } })
-              }
-            />
-          </View>
-          <View />
+          <View style={{ height : 230 , alignItems : "center" , justifyContent : 'center' }} >
+
+         {
+          view == "register" ? (
+            <View>
+             <View style={styles.inputLogin}>
+              <TextInput
+               style={styles.inputTextLogin}
+               placeholder="Nome"
+               value={username}
+               underlineColorAndroid="#3e0644"
+               onChangeText={text =>{ 
+                  this.setState({ user: { ...this.state.user, username: text } },() => {
+                    this.onUpdateInputs()
+                  })
+                }}
+              />
+              </View>
+            </View>
+          ) : null
+        }
+           <View style={styles.inputLogin}>
+             <TextInput
+               style={styles.inputTextLogin}
+               placeholder="E-mail"
+               value={email}
+               underlineColorAndroid="#3e0644"
+               onChangeText={text =>{ 
+                  this.setState({ user: { ...this.state.user, email: text } },() => {
+                    this.onUpdateInputs()
+                  })
+                }}
+              />
+            </View>
+            <View style={styles.inputLogin}>
+                <TextInput
+                  style={styles.inputTextLogin}
+                  placeholder="Senha"
+                  value={password}
+                  underlineColorAndroid="#3e0644"
+                  secureTextEntry={true}
+                  onChangeText={text =>{
+                    this.setState({ user: { ...this.state.user, password: text } },() => {
+                      this.onUpdateInputs()
+                    })
+                  }}
+                />
+            </View>
+            </View>
           <View
             style={{
               width: width * 0.8,
@@ -108,14 +227,36 @@ export default class Login extends React.Component {
               onPress={this.onLogin.bind(this)}
               style={styles.buttonlogin}
               color="#65ff70"
-              title="Entrar"
+              disabled={activeLoginIn}
+              title={ buttonName }
             />
+
+            <View style={{ flexDirection : "row" , justifyContent : "space-between" , alignItems : "center" , marginVertical : 15 }} >
+              <TouchableOpacity onPress={() => this.dispatchView("register")} >
+                <Text style={{ color:"white" , fontWeight : '500' ,  }} >Cadastrar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.dispatchView("login")} >
+                 <Text style={{ color:"white" , fontWeight : '500' ,  }} >Esqueci a senha</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
+          
         </LinearGradient>
+        </ScrollView>
+
       </View>
     );
   }
 }
+
+let mapStateProps = (state) => ({
+  user : state.User
+})
+
+let mapDispatchProps = (dispatch) => bindActionCreators({ userSetState },dispatch)
+
+export default connect(mapStateProps,mapDispatchProps)(Login)
 
 const styles = StyleSheet.create({
   container: {
@@ -141,5 +282,5 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
     fontFamily: "Roboto",
     height: 60
-  }
+  },
 });

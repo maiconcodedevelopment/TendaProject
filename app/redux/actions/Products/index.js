@@ -22,7 +22,8 @@ export default function actionProducts(state = initialStateProducts, action) {
 
     case "REQUEST_SEARCH_PRODUCTS":
       return {
-        ...state
+        ...state,
+        searchProducts : action.payload
       }
       break;
 
@@ -33,6 +34,20 @@ export default function actionProducts(state = initialStateProducts, action) {
       }
       break;
 
+    case "REQUEST_PROMOTIONS_PRODUCT":
+      return {
+        ...state,
+        promotionsProduct : action.payload
+      }
+      break;
+    
+    case "REQUEST_PROMOTIONS_MAIN":
+
+      return{
+        ...state,
+        promotions : action.payload
+      }
+      break;
     case "REQUEST_PRODUCTS_CATEGORY":
       const {
         categorys
@@ -374,6 +389,11 @@ export const getProductId = id => ({
   payload: id
 })
 
+export const searchAddProducts = products => ({
+  type : "REQUEST_SEARCH_PRODUCTS",
+  payload : products
+})
+
 export const categoryProductAll = (categoryId, products) => ({
   type: "REQUEST_PRODUCTS_CATEGORY",
   payload: {
@@ -381,6 +401,16 @@ export const categoryProductAll = (categoryId, products) => ({
     products
   }
 });
+
+export const promotionsAddProduct = promotions => ({
+  type : "REQUEST_PROMOTIONS_PRODUCT",
+  payload : promotions
+})
+
+export const promotionsMain = promotions => ({
+  type : "REQUEST_PROMOTIONS_MAIN",
+  payload : promotions
+})
 
 export const userAddProduct = id => ({
   type: "REQUEST_ADD_PRODUCT",

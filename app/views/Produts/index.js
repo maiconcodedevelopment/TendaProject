@@ -5,6 +5,8 @@ import {
   ScrollView,
   ImageBackgroundComponent,
   StyleSheet,
+  Image,
+  ImageResizeMode,
   FlatList,
   TouchableNativeFeedback
 } from "react-native";
@@ -17,10 +19,10 @@ import { Svg } from "expo";
 import { CardProduct } from "../../components/cardProduct";
 
 //methots request
-import { requestAddProduct } from "../../redux/actions/Products/request";
+import { requestAddProduct , requestPromotionsProduct } from "../../redux/actions/Products/request";
 
 //methos dispatch
-import { userAddProduct } from "../../redux/actions/Products";
+import { userAddProduct , promotionsAddProduct } from "../../redux/actions/Products";
 
 //routes dispatch
 import { navigationActionFilterProducts } from "../../router/actions/FilterProducts";
@@ -28,8 +30,11 @@ import HeaderSearch from "../../components/header";
 import { navigationActionProduct } from "../../router/actions/Product";
 
 class Produtcs extends React.Component {
-  static navigationOptions = {
-    header: <HeaderSearch />
+  
+  static navigationOptions = ({navigation}) => {
+    return {
+       header: <HeaderSearch  navigation={navigation} onPressBack={() => navigation.goBack()} onPressNavigation={() => { console.log("sim ism") } } />
+    }
   };
 
   constructor(state) {
@@ -54,15 +59,7 @@ class Produtcs extends React.Component {
     navigation.dispatch(navigationActionFilterProducts);
   }
 
-  activeLikeProduct(id) {
-    requestAddProduct(1, id)
-      .then(response => {
-        this.props.userAddProduct(id);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
+
 
   updateProducts(products) {
     this.setState({ products });
@@ -85,6 +82,16 @@ class Produtcs extends React.Component {
         this.requestProducts();
       }
     );
+  }
+
+  activeLikeProduct(id) {
+    requestAddProduct(1, id)
+      .then(response => {
+        this.props.userAddProduct(id);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   onScreenProduct(product) {
@@ -110,7 +117,7 @@ class Produtcs extends React.Component {
             style={styles.buttonFilter}
             onPress={this.navigatefilterProducts.bind(this)}
           >
-            <Text style={styles.buttonFiltertext}>Filtrar Items</Text>
+            <Image  source={require("../../assets/icons/png/filter_shash.png")} style={{ width : 25 , height : 25 }} />
           </TouchableNativeFeedback>
         </View>
 
@@ -147,7 +154,7 @@ const mapStateProps = state => ({
 });
 
 const mapDispatchProps = dispatch =>
-  bindActionCreators({ userAddProduct }, dispatch);
+  bindActionCreators({ userAddProduct, promotionsAddProduct }, dispatch);
 
 export default connect(
   mapStateProps,
@@ -161,7 +168,8 @@ const styles = StyleSheet.create({
     width,
     height: 30,
     paddingHorizontal: 10,
-    marginTop: 80
+    marginTop: 95,
+    paddingBottom : 15,
   },
   buttonFilter: {
     borderBottomColor: colors.slashStrong,

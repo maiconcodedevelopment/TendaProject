@@ -8,9 +8,15 @@ import {
   Easing,
   StyleSheet,
   FlatList,
+  TouchableHighlight,
+  TouchableOpacity,
   Image,
   Platform
 } from "react-native";
+
+import { bindActionCreators } from "redux"
+import { connect  } from "react-redux"
+
 import LeftElement from "./LeftElement";
 import CenterElement from "./CenterElement";
 import RightElement from "./RightElement";
@@ -19,11 +25,16 @@ import { width, height } from "../../styles";
 import { URLModel } from "../../redux/model/URLModel";
 import { request } from "../../config/requestConfig";
 import { requestProductSearch } from "../../redux/actions/Products/request";
+import { navigationActionProduct } from "../../router/actions/Product";
+
+import { searchAddProducts } from "../../redux/actions/Products"
+import { navigationActionSearchProducts } from "../../router/actions/SearchProducts";
 
 const isAndroid = Platform.OS === "android";
 
 // create a component
-export default class HeaderSearch extends React.Component {
+class HeaderSearch extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -35,9 +46,13 @@ export default class HeaderSearch extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {}
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps)
+  }
 
-  componentWillUpdate() {}
+  componentWillUpdate(nextProps) {
+    console.log(nextProps)
+  }
 
   searchDispatch(search) {
     let model = new URLModel(request.product.search, "GET");
@@ -72,18 +87,55 @@ export default class HeaderSearch extends React.Component {
   onSearchClose = () => {
     this.animated(0);
     this.setState({ isSearchActive: false, searchValue: "" });
+    this.setState({ products : [] })
   };
 
   onSearchTextChange = searchValue => {
-    this.setState({ searchValue });
-    this.searchDispatch(this.state.searchValue);
+    this.setState({ searchValue },() => {
+       this.searchDispatch(this.state.searchValue);
+    });
   };
+
+  onSearchSubmit = (value) => {
+
+    const { searchAddProducts } = this.props
+    console.log(value)
+
+    if(value.length > 0){
+      let model = new URLModel(request.product.search, "GET");
+      model.append("search", value.length > 0 ? value : "");
+      model.concatURL();
+  
+      requestProductSearch(model.getURL()).then(response => {
+        searchAddProducts(response)
+        this.props.navigation.dispatch(navigationActionSearchProducts(value))
+      }).then(() => {
+        this.onSearchClose()
+      });
+      
+    }
+
+
+    // let model = new URLModel(request.product.search, "GET");
+    // model.append("search", value.length > 0 ? value : "");
+    // model.concatURL();
+
+    // requestProductSearch(model.getURL()).then((response) => {
+    //   this.props.searchAddProducts(response)
+    // })
+  }
 
   onSearchClearPressed = () => {
     this.setState({ searchValue: "" });
+    this.setState({ products : [] })
   };
 
+  onPressBack = () => {
+
+  }
+
   render() {
+    const { navigation , onPressBack , onPress } = this.props
     const { searchValue, isSearchActive, products } = this.state;
 
     let bar = this.state.toolBar.interpolate({
@@ -114,10 +166,13 @@ export default class HeaderSearch extends React.Component {
             <LeftElement
               isSearchActive={isSearchActive}
               onSearchClose={this.onSearchClose}
+              onPressBack={onPressBack}
+              onPress={onPress}
             />
             <CenterElement
               isSearchActive={isSearchActive}
               onSearchTextChange={this.onSearchTextChange}
+              onSearchSubmit={this.onSearchSubmit}
               searchValue={searchValue}
               title=""
             />
@@ -128,18 +183,19 @@ export default class HeaderSearch extends React.Component {
               onSearchClear={this.onSearchClearPressed}
             />
           </Animated.View>
-          <View style={[styles.searchList]}>
+          <View style={[styles.searchList,{ display : isSearchActive ? "flex" : "none" }]}>
             <FlatList
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 borderBottomLeftRadius: 2,
                 borderBottomRightRadius: 2
               }}
+              
               horizontal={false}
-              keyExtrador={(item, index) => index.toString()}
+              keyExtrador={(item, index) => item.id}
               data={products}
               renderItem={({ item }) => (
-                <View style={{ flex: 1, flexDirection: "row" }}>
+                <TouchableOpacity style={{ zIndex : 6,flex: 1, flexDirection: "row" , padding : 10 , alignItems : "center" }} onPress={() => console.warn("simfd")} >
                   <View
                     style={{
                       width: 50,
@@ -153,9 +209,10 @@ export default class HeaderSearch extends React.Component {
                       style={{ width: 50, height: 50 }}
                       source={{ uri: item.images[0] }}
                     />
+                    
                   </View>
                   <Text> {item.name} </Text>
-                </View>
+                  </TouchableOpacity>
               )}
             />
           </View>
@@ -182,6 +239,14 @@ export default class HeaderSearch extends React.Component {
     );
   }
 }
+
+let mapStateProps = state => ({
+  products : state.products.products
+})
+
+let mapDispatchProps = dispatch => bindActionCreators({ searchAddProducts },dispatch)
+
+export default connect(mapStateProps,mapDispatchProps)(HeaderSearch)
 
 const heightHeader = 80;
 const statusBar = 30;
@@ -213,11 +278,15 @@ const styles = StyleSheet.create({
   },
   searchList: {
     position: "absolute",
+    maxHeight : height * 0.4,
     top: heightHeader,
     left: 0,
     right: 0,
     marginHorizontal: 5,
-    backgroundColor: "red",
-    flex: 1
+    backgroundColor: "white",
+    flex: 1,
+    borderBottomLeftRadius : 4,
+    borderBottomRightRadius : 4,
+    overflow : "hidden"
   }
 });

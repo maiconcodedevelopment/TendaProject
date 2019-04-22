@@ -9,11 +9,11 @@ export default class CardCarrosel extends React.Component {
   }
 
   render() {
-    const { title, description } = this.props;
+    const { image ,title, description } = this.props;
 
     return (
       <ImageBackground
-        source={require("../../assets/img/cardCarrosel/sexo.png")}
+        source={{ uri : image }}
         resizeMode="cover"
         resizeMethod="resize"
         style={styles.cardCarrosel}

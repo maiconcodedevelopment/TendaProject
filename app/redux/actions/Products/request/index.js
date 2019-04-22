@@ -4,9 +4,29 @@ import {
 
 
 export function requestProducts() {
-    return fetch("http://10.0.2.2:8000/product/all", {
+    return fetch(request.product.all, {
         method: "GET"
     }).then(response => response.json());
+}
+
+export function requestPromotionsProduct(){
+    return fetch(request.product.promotions.all).then((response)=>{
+        return response.json()
+    })
+}
+
+export function requestPromotionMain(){
+    return fetch(request.promotion.all).then((response) => {
+        return response.json()
+    })
+}
+
+export function requestProductrelated(id,iduser){
+    console.log(`${request.product.related}${id}/${iduser}`)
+    return fetch(`${request.product.related}${id}/${iduser}`,{ method : "GET" }).then((response) => {
+        console.log(response)
+        return response.json()
+    })
 }
 
 export function requestProductsFilter(url) {

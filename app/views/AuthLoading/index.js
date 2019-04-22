@@ -22,13 +22,14 @@ export default class AuthLoading extends React.Component {
 
   async _vetifyAuthLoading() {
     await AsyncStorage.getItem("user").then(item => {
-      console.log("este >:");
-      console.log(item);
-      if (item) {
-        this.props.navigation.dispatch(navigationAppAction);
-      } else {
+      console.log(item)
+      // console.log("este >:");
+      // console.log(item);
+      // if (item) {
+      //   this.props.navigation.dispatch(navigationAppAction);
+      // } else {
         this.props.navigation.dispatch(navigationAuthAction);
-      }
+      // }
     });
   }
 
@@ -44,8 +45,8 @@ export default class AuthLoading extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
+    flex : 1,
     alignItems: "center",
     justifyContent: "center",
-    height: height
   }
 });

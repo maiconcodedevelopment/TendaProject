@@ -16,11 +16,13 @@ export default class LeftElement extends React.Component {
     console.log("----");
     console.log(nextprops.isSearchActive);
 
-    if (nextprops.isSearchActive && !this.props.isSearchActive) {
+    
+
+    if (nextprops.isSearchActive && !this.props.isSearchActive && !this.props.onPressBack ) {
       this.animate({ toValue: 1, leftElement: "arrow-forward" });
     }
 
-    if (!nextprops.isSearchActive && this.props.isSearchActive) {
+    if (!nextprops.isSearchActive && this.props.isSearchActive && !this.props.onPressBack ) {
       this.animate({ toValue: 0, leftElement: "menu" });
     }
   }
@@ -45,7 +47,7 @@ export default class LeftElement extends React.Component {
 
   render() {
     const { leftElement, spinValue } = this.state;
-    const { isSearchActive, onSearchClose } = this.props;
+    const { isSearchActive, onSearchClose , onPressBack , onPress } = this.props;
 
     const spin = this.state.spinValue.interpolate({
       inputRange: [0, 1],
@@ -54,12 +56,12 @@ export default class LeftElement extends React.Component {
 
     return (
       <Animated.View
-        style={[styles.container, { transform: [{ rotate: spin }] }]}
+        style={[styles.container, { transform: [{ rotate: onPressBack ? "180deg" :spin }] }]}
       >
         <Icon
-          name={leftElement}
+          name={onPressBack ? "arrow-forward" : leftElement }
           color={isSearchActive ? "black" : "white"}
-          onPress={onSearchClose}
+          onPress={isSearchActive ? onSearchClose : onPress ? onPress : onPressBack}
         />
       </Animated.View>
     );
