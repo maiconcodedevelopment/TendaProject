@@ -83,9 +83,7 @@ export class CardProduct extends React.Component {
   }
 
   priceFormat(price) {
-    return Number(price)
-      .toFixed(2)
-      .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+      return new Intl.NumberFormat('pt-br',{ style : 'currency', currency : 'BRL' }).format(price)
   }
 
   render() {
@@ -129,7 +127,7 @@ export class CardProduct extends React.Component {
 
                 <TouchableOpacity
                   onPress={() => {
-                    activeLikeProduct(id);
+                    activeLikeProduct(id,product);
                   }}
                   onPressOut={this.animateLike.bind(this)}
                 >
@@ -143,7 +141,7 @@ export class CardProduct extends React.Component {
               </View>
 
               <View style={styles.productDown}>
-                <Text style={styles.textName}>{name}</Text>
+                <Text style={styles.textName} numberOfLines={2} >{name}</Text>
 
                 <View style={styles.productPrice}>
                   <Text

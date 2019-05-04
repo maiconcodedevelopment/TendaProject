@@ -81,24 +81,61 @@ export default function actionProducts(state = initialStateProducts, action) {
     case "REQUEST_ADD_PRODUCT":
       console.log(action);
       let {
-        products
+        products,
+        searchProducts
       } = state;
-      let product = products.filter(
-        product => product.id === action.payload
-      )[0];
-      let productlike = {
-        ...product,
-        like: !product.like
-      };
-      const newproducts = state.products.map(product =>
-        product.id === productlike.id ? productlike : product
-      );
+
+      var productsArrayState = []
+      var searchProductsArrayState = []
+
+      if (searchProducts.length > 0){
+
+        console.warn("sim kakakak ter search")
+
+        let productSearchState = searchProducts.filter(product => product.id === action.payload)[0]
+         
+        let searchAddProducts = {
+          ...productSearchState,
+          like : !productSearchState.like 
+        }
+
+        searchProductsArrayState = state.searchProducts.map(product => product.id === searchAddProducts.id ? searchAddProducts : product )
+        
+      }
+
+      if (products.length > 0) {
+         let productsState = products.filter(
+          product => product.id === action.payload
+        )[0];
+
+        let productlike = {
+          ...productsState,
+          like: !productsState.like
+        };
+
+        productsArrayState = state.products.map(product =>
+          product.id === productlike.id ? productlike : product
+        );
+
+      }
+
+        //promotionsProduct :
+        //insert 
+
+
       return {
         ...state,
-        products: newproducts
+        products: productsArrayState,
+        searchProducts : searchProductsArrayState,
       };
       break;
 
+    case "REQUEST_ADD_PRODUTO_SEARCH":
+
+      return {
+        ...state
+      }
+      break;
     case "FILTER_ADD_PRODUCTS":
       return {
         ...state,

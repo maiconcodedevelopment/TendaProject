@@ -17,6 +17,7 @@ import App from "../views/app/index";
 import Produtcs from "../views/Produts";
 import SearchProducts from "../views/SearchProducts"
 import Product from "../views/Product";
+import CardProducts from "../views/CartProducts"
 import FilterProducts from "../views/FilterProducts";
 import FilterTypes from "../views/FilterProducts/screen/FilterTypes";
 import FilterColors from "../views/FilterProducts/screen/FilterColors";
@@ -118,6 +119,7 @@ const routerApp = createStackNavigator(
     Product: {
       screen: Product,
     },
+   
     FilterProducts: {
       screen: FilterProducts,
       navigationOptions: {
@@ -143,7 +145,10 @@ const menuDrawer = createDrawerNavigator(
   {
     Home: {
       screen: routerApp
-    }
+    },
+    CardProducts : {
+      screen : CardProducts
+    },
   },
   {
     initialRouteName: "Home",

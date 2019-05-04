@@ -1,16 +1,17 @@
 import React from "react";
-import { View, Image , Text, StyleSheet, ScrollView } from "react-native";
+import { View, Image , Text, TouchableNativeFeedback ,  StyleSheet, ScrollView } from "react-native";
 
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux"
 import { LinearGradient } from "expo";
 import { colors } from "../../styles";
+import { navigationActionCartProducts } from "../../router/actions/CartProducts";
 
 class Sidebar extends React.Component{
 
 
   render(){
-    const { user } = this.props
+    const { user , navigation } = this.props
 
     console.log(user)
     console.log(this.props)
@@ -26,10 +27,12 @@ class Sidebar extends React.Component{
            <Text style={{ color : "white" , fontWeight : "500" }} >{user.username}</Text>
         </LinearGradient>
         <ScrollView>
+           <TouchableNativeFeedback onPress={() => navigation.dispatch(navigationActionCartProducts) } >
            <View style={{ flexDirection : "row" , alignItems : "center" , justifyContent  : "space-between" , paddingHorizontal : 20 , marginTop : 15 }} >
               <Text style={{ fontWeight : "500" }} >Produto Carrinho</Text>
               <Image source={require('../../assets/icons/png/car_love.png')} style={{ width : 25, height : 25 }}  />
            </View>
+           </TouchableNativeFeedback>
         </ScrollView>
       </View>
     )

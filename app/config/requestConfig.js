@@ -4,13 +4,18 @@ export var url = urllocal;
 
 export let request = {
     users: {
+        get : url + "/api/users/",
         login : url + "/api/users/login",
-        productadd: url + "/api/users/productadd"
+        productadd: url + "/api/users/productadd",
+        cart : {
+            products : url + "/api/users/cart/products/",
+            incremnet : url + "/api/users/cart/increment/"
+        }
     },
     product: {
         all: url + "/product/all",
         related : url + "/product/related/",
-        search: url + "/product/search",
+        search: url + "/product/search/",
         promotions : {
             all : url + "/product/promotion/all"
         }

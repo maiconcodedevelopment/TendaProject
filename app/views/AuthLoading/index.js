@@ -8,12 +8,17 @@ import {
   AsyncStorage,
   Dimensions
 } from "react-native";
+
+import { connect } from "react-redux";
+
 import { navigationAppAction } from "../../router/actions/App";
 import { navigationAuthAction } from "../../router/actions/Auth";
+import { requestUserGet } from "../../redux/actions/Users/request";
+import { userSetState } from "../../redux/actions/Users";
 
 const height = Dimensions.get("screen").height;
 
-export default class AuthLoading extends React.Component {
+class AuthLoading extends React.Component {
   constructor(props) {
     super(props);
     console.log("sim esta");
@@ -25,11 +30,21 @@ export default class AuthLoading extends React.Component {
       console.log(item)
       // console.log("este >:");
       // console.log(item);
-      // if (item) {
-      //   this.props.navigation.dispatch(navigationAppAction);
-      // } else {
+      if (item) {
+        console.log("sim sim ")
+        console.log(item)
+        requestUserGet({ iduser  : parseInt(item) }).then(({ response }) =>{
+          this.props.dispatch(userSetState(response))
+        }).then(() => {
+          this.props.navigation.dispatch(navigationAppAction);
+        }).catch((error) => {
+           console.log(error)
+           this.props.navigation.dispatch(navigationAuthAction);
+        })
+        
+      } else {
         this.props.navigation.dispatch(navigationAuthAction);
-      // }
+      }
     });
   }
 
@@ -42,6 +57,8 @@ export default class AuthLoading extends React.Component {
     );
   }
 }
+
+export default connect()(AuthLoading)
 
 const styles = StyleSheet.create({
   container: {

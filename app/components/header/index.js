@@ -55,7 +55,9 @@ class HeaderSearch extends React.Component {
   }
 
   searchDispatch(search) {
-    let model = new URLModel(request.product.search, "GET");
+    const { user } = this.props
+
+    let model = new URLModel(`${request.product.search}${user.id}`, "GET");
     model.append("search", search.length > 0 ? search : "");
     model.concatURL();
 
@@ -98,11 +100,11 @@ class HeaderSearch extends React.Component {
 
   onSearchSubmit = (value) => {
 
-    const { searchAddProducts } = this.props
+    const { searchAddProducts , user } = this.props
     console.log(value)
 
     if(value.length > 0){
-      let model = new URLModel(request.product.search, "GET");
+      let model = new URLModel(`${request.product.search}${user.id}`, "GET");
       model.append("search", value.length > 0 ? value : "");
       model.concatURL();
   
@@ -241,6 +243,7 @@ class HeaderSearch extends React.Component {
 }
 
 let mapStateProps = state => ({
+  user : state.user,
   products : state.products.products
 })
 

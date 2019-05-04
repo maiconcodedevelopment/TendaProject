@@ -249,6 +249,7 @@ class FilterProducts extends React.Component {
             </View>
 
             <View style={{ paddingLeft }}>
+            <Text style={{ fontSize : 16 , color : "white" , fontWeight : '500' , fontFamily: "Roboto" }} >Sub-Categorias</Text>
               <View
                 style={{
                   marginVertical: 10,
@@ -287,6 +288,8 @@ class FilterProducts extends React.Component {
                 />
               </View>
 
+              <Text style={{ fontSize : 16 , color : "white" , fontWeight : '500' , fontFamily: "Roboto" }} >Cores</Text>
+
               <View
                 style={{
                   marginVertical: 10,
@@ -294,6 +297,7 @@ class FilterProducts extends React.Component {
                   alignItems: "center"
                 }}
               >
+                
                 <TouchableNativeFeedback onPress={this.onAddColors.bind(this)}>
                   <View style={styles.buttonAddTag}>
                     <Image

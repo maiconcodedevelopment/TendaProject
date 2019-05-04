@@ -1,6 +1,8 @@
 export const initialStateUser = {
-    username : null,
+    id : null,
+    username : "null",
     email : null,
     password : null,
-    products : []
+    products : [],
+    total : 0
 }

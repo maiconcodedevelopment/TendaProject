@@ -3,6 +3,17 @@ import {
 } from "../../../../config/requestConfig";
 import { URLModel } from "../../../model/URLModel";
 
+export function requestUserGet({ iduser }){
+    return fetch(`${request.users.get}${iduser}`, { method : "GET" }).then(response => {
+        if(response.ok && response.status === 200){
+            return response.json()
+        }
+        throw new "Error"
+    }).then(response => { 
+        return { response : response } 
+    })
+}
+
 export function requestLoginIn({ email , password }){
     let model = new URLModel(request.users.login,"GET")
     model.append("email",email)
@@ -41,4 +52,32 @@ export function requestRegister({ username , email , password }){
     }).then((response) => {
         return { response : response }
     })
+}
+
+export function requestCartProducts({ iduser }){
+
+    return fetch(`${request.users.cart.products}${iduser}`,{ method : "GET" }).then((response) => {
+        if(response.ok && response.status === 200){
+            return response.json()
+        }
+        throw new "Exception"
+    }).then((response) => {
+        return { response : response }
+    })
+
+}
+
+export function requestCartIncrement({ iduser, idproduct,  increment }){
+
+    return fetch(`${request.users.cart.incremnet}${iduser}/${idproduct}/${increment}`, { 
+        method : "GET" 
+    }).then((response) => {
+        if(response.ok && response.status === 200){
+            return response.json()
+        }
+        throw new "Exception"
+    }).then((response) => {
+        return { response : response }
+    })
+    
 }

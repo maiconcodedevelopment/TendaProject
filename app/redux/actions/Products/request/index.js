@@ -53,6 +53,8 @@ export function requestAddProduct(iduser, idproduct) {
             "X-Requested-With": "XMLHttpRequest"
         },
         body: data
+    }).then((resposne) => {
+        return resposne.json()
     });
 }
 

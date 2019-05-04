@@ -38,6 +38,7 @@ export const colors = {
 
 }
 
+export const statusBar = 30
 
 export const styles = StyleSheet.create({
     innerContainer: {

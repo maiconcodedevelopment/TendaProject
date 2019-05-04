@@ -32,6 +32,7 @@ import { URLModel } from "../../redux/model/URLModel";
 import { request } from "../../config/requestConfig";
 import HeaderSearch from "../../components/header";
 import { navigationActionProduct } from "../../router/actions/Product";
+import { requestCartProducts, requestUserGet } from "../../redux/actions/Users/request";
 
 class App extends React.Component {
 
@@ -82,11 +83,11 @@ class App extends React.Component {
   }
 
   onTouchSelectCategory(id) {
-    const { navigation } = this.props;
+    const { navigation , user } = this.props;
 
     let products = new URLModel(request.product.all, "GET");
     products.append("categorys", id);
-    products.append("iduser", 1);
+    products.append("iduser", user.id);
     products.concatURL();
 
     console.log(products.getURL());
@@ -104,8 +105,7 @@ class App extends React.Component {
 
   onTouchSpotlight = (product) => {
     const { navigation } = this.props
-    navigation.dispatch(navigationActionProduct(product));
-    
+    navigation.dispatch(navigationActionProduct({ ...product , typeProduct : "promotion" }));
   }
 
   _renderItem({ item, index }) {
@@ -226,7 +226,12 @@ class App extends React.Component {
 }
 
 const mapStateProps = state => {
-  return { products: state.products, categorys: state.products.categorys , promotionsProduct : state.products.promotionsProduct , promotions : state.products.promotions };
+  return {
+    user : state.user,
+    products: state.products, 
+    categorys: state.products.categorys , 
+    promotionsProduct : state.products.promotionsProduct , 
+    promotions : state.products.promotions };
 };
 
 const mapDispatchProps = dispatch =>

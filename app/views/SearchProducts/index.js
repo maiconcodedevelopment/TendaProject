@@ -6,7 +6,10 @@ import { width } from "../../styles";
 import { CardProduct } from "../../components/cardProduct";
 import { requestAddProduct } from "../../redux/actions/Products/request";
 import { navigationActionProduct } from "../../router/actions/Product";
+
 import { userAddProduct , promotionsAddProduct } from "../../redux/actions/Products";
+import { userAddAndRemoveProduct } from "../../redux/actions/Users"
+
 import { bindActionCreators } from "redux";
 import ContainerLayout from "../../components/containerLayout";
 
@@ -47,11 +50,16 @@ class SearchProduct extends React.Component{
         navigation.dispatch(navigationActionProduct(product));
     }
 
-    activeLikeProduct(id) {
-        requestAddProduct(1, id)
+    activeLikeProduct(id,product) {
+
+        const { user } = this.props
+
+        requestAddProduct(user.id, id)
           .then(response => {
             this.props.userAddProduct(id);
+            this.props.userAddAndRemoveProduct(response)
           })
+
           .catch(error => {
             console.log(error);
           });
@@ -97,11 +105,12 @@ class SearchProduct extends React.Component{
 }
 
 let mapStateProps = state => ({
+    user : state.user,
     searchProducts : state.products.searchProducts,
     products : state.products.products
 })
 
-let mapDispatchProps = dispatch => bindActionCreators({ userAddProduct },dispatch)
+let mapDispatchProps = dispatch => bindActionCreators({ userAddProduct , userAddAndRemoveProduct },dispatch)
 
 export default connect(mapStateProps,mapDispatchProps)(SearchProduct)
 

@@ -23,6 +23,7 @@ import { requestAddProduct , requestPromotionsProduct } from "../../redux/action
 
 //methos dispatch
 import { userAddProduct , promotionsAddProduct } from "../../redux/actions/Products";
+import { userAddAndRemoveProduct } from "../../redux/actions/Users"
 
 //routes dispatch
 import { navigationActionFilterProducts } from "../../router/actions/FilterProducts";
@@ -84,10 +85,14 @@ class Produtcs extends React.Component {
     );
   }
 
-  activeLikeProduct(id) {
-    requestAddProduct(1, id)
+  activeLikeProduct(id,product) {
+
+    const { user } = this.props
+
+    requestAddProduct(user.id, id)
       .then(response => {
         this.props.userAddProduct(id);
+        this.props.userAddAndRemoveProduct(response);
       })
       .catch(error => {
         console.log(error);
@@ -96,7 +101,7 @@ class Produtcs extends React.Component {
 
   onScreenProduct(product) {
     const { navigation } = this.props;
-    navigation.dispatch(navigationActionProduct(product));
+    navigation.dispatch(navigationActionProduct({ ...product , typeProduct : "product" }));
   }
 
   render() {
@@ -150,11 +155,12 @@ class Produtcs extends React.Component {
 }
 
 const mapStateProps = state => ({
+  user : state.user,
   products: state.products
 });
 
 const mapDispatchProps = dispatch =>
-  bindActionCreators({ userAddProduct, promotionsAddProduct }, dispatch);
+  bindActionCreators({ userAddProduct, userAddAndRemoveProduct , promotionsAddProduct }, dispatch);
 
 export default connect(
   mapStateProps,
