@@ -47,7 +47,7 @@ class SearchProduct extends React.Component{
 
     onScreenProduct(product) {
         const { navigation } = this.props;
-        navigation.dispatch(navigationActionProduct(product));
+        navigation.dispatch(navigationActionProduct({ ...product , typeProduct : "productSearch" }));
     }
 
     activeLikeProduct(id,product) {
@@ -59,7 +59,6 @@ class SearchProduct extends React.Component{
             this.props.userAddProduct(id);
             this.props.userAddAndRemoveProduct(response)
           })
-
           .catch(error => {
             console.log(error);
           });

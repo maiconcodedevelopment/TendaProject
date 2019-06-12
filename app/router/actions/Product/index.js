@@ -5,7 +5,7 @@ import {
 export const navigationActionProduct = (product) => {
     return NavigationActions.navigate({
         routeName: "Product",
-        params: product,
+        params:  product ,
         action: NavigationActions.navigate({
             routeName: "Product"
         })

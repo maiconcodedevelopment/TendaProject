@@ -1,4 +1,4 @@
-import React, { Easing, Animated } from "react-native";
+import React, { Easing, Animated , View , Text } from "react-native";
 
 import {
   createStackNavigator,
@@ -6,6 +6,7 @@ import {
   createAppContainer,
   StackNavigator,
   DrawerNavigator,
+  createBottomTabNavigator,
   createDrawerNavigator,
   DrawerItems,
   SafeAreaView
@@ -24,6 +25,10 @@ import FilterColors from "../views/FilterProducts/screen/FilterColors";
 import Cart from "../views/Cart";
 
 import  Sidebar from "../components/drawer";
+import HeaderCheckout from "../components/header/HeaderCheckout"
+
+import AdressTransaction from "../views/Transaction/screen/Adress";
+import Transaction from "../views/Transaction"
 
 let transitionConfiguration = () => {
   return {
@@ -95,6 +100,19 @@ const CustomDrawerComponent = props => (
   </SafeAreaView>
 );
 
+export let RouteBottomTransaction = createAppContainer(createBottomTabNavigator({
+   AdressTransaction : {
+      screen : AdressTransaction,
+   }
+},{
+  // navigationOptions : ({navigation}) => {
+  //   return {
+  //     header : props => <HeaderCheckout navigation={navigation} />
+  //   }
+  // }
+  //  tabBarComponent : ({ navigation }) => <HeaderCheckout navigation={navigation} />
+}))
+
 const routeAuth = createStackNavigator({
   Auth: {
     screen: Auth,
@@ -119,7 +137,6 @@ const routerApp = createStackNavigator(
     Product: {
       screen: Product,
     },
-   
     FilterProducts: {
       screen: FilterProducts,
       navigationOptions: {
@@ -133,11 +150,17 @@ const routerApp = createStackNavigator(
     FilterColors: {
       screen: FilterColors,
       navigationOptions: {}
+    },
+    Transaction : { 
+      screen :  Transaction,
+      navigationOptions: {
+        header: null
+      }
     }
   },
   {
     transitionConfig: transitionConfiguration,
-    initialRouteName: "App"
+    initialRouteName: "App",
   }
 );
 

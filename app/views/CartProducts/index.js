@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View , ViewComponent , Text , Image , FlatList , TextComponent , TouchableNativeFeedback , Button , StyleSheet } from "react-native";
-
+import { numberToReal } from "../../helper/formatMoney";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
@@ -12,7 +12,9 @@ import { userAddProduct } from "../../redux/actions/Products";
 
 import { userAddAndRemoveProduct } from "../../redux/actions/Users";
 import { requestAddProduct } from '../../redux/actions/Products/request';
+import { navigationActionTransaction } from '../../router/actions/Transaction';
 
+import { Icon } from "react-native-elements";
 
 class CartProducts extends Component {
 
@@ -23,9 +25,9 @@ class CartProducts extends Component {
     const { user , userAddProduct , userAddAndRemoveProduct } = this.props
 
      requestAddProduct(user.id,product.id).then(response => {
-         console.log(response)
+
          userAddProduct(product.id)
-         userAddAndRemoveProduct(product)
+         userAddAndRemoveProduct(response)
 
      }).catch(errors => {
          console.log(errors)
@@ -36,8 +38,7 @@ class CartProducts extends Component {
   _incrementProduct = ({ product,  increment }) => {
     const { user , userIncrementProduct } = this.props
     requestCartIncrement({ iduser : user.id , idproduct : product.id , increment }).then(({ response }) => {
-       console.log(response)
-       console.log('sim sim sim')
+
        userIncrementProduct(response)
     }).catch((error) => {
         console.log(error)
@@ -47,8 +48,7 @@ class CartProducts extends Component {
   _desencrementProduct({ product , increment }){
     const { user , userIncrementProduct } = this.props
     requestCartIncrement({ iduser : user.id , idproduct : product.id , increment }).then(({ response }) => {
-        console.log(response)
-        console.log('nao nao nao')
+
         userIncrementProduct(response)
     }).catch((error) => {
         console.log(error)
@@ -56,18 +56,19 @@ class CartProducts extends Component {
   }
 
   formatPrice(price){
-    return new Intl.NumberFormat('pt-br',{ style : 'currency', currency : 'BRL' }).format(price)
+    return price
+    //return new Intl.NumberFormat('pt-br',{ style : 'currency', currency : 'BRL' }).format(price)
+  }
+
+  onTransaction(){
+      this.props.navigation.dispatch(navigationActionTransaction)
   }
 
 
   render() {
 
-    const { total , userAddAndRemoveProduct , totalPrice , totalDescont } = this.props
+    const { total , userAddAndRemoveProduct , totalPrice , totalDescont , navigation } = this.props
     const { products } = this.props.user
-
-    console.log("----sim")
-    console.log(products)
-    console.log("----sim")
 
     const Cart = props => {
         return (
@@ -86,7 +87,7 @@ class CartProducts extends Component {
                     <Text style={styles.cartTitle} numberOfLines={1} >{ props.title }</Text>
                     
                     <View style={{ flexDirection : "row" , alignItems : "flex-start" , justifyContent : "flex-start" , flex : 1  }} >
-                        <Text style={styles.cartPrice} >{ this.formatPrice(props.price)}</Text>
+                        <Text style={styles.cartPrice} >{ numberToReal(props.price,true)}</Text>
                         <Text style={{ color : colors.lightSlash , alignSelf : "flex-start" }} >{ props.descont }%</Text>
                     </View>
                 </View>
@@ -111,8 +112,13 @@ class CartProducts extends Component {
     return (
         <ContainerLayout style={{ flex : 1 , width , alignItems : "center" , justifyContent : "flex-start"  }} >
              <View style={{ height : 30 }} />
+
+             <View style={{ alignSelf : "flex-start" , paddingTop : 15 , paddingLeft : 20 , paddingBottom : 5 }} >
+                <Icon color={"white"} name={"arrow-back"} onPress={() => navigation.goBack()} />
+             </View>
+
              <FlatList
-               contentContainerStyle={{ paddingVertical : 15 , marginHorizontal : 15 , flexGrow : 1 }}
+               contentContainerStyle={{ marginHorizontal : 15 , flexGrow : 1 , paddingVertical : 10 }}
                horizontal={false}
                showsVerticalScrollIndicator={false}
                keyExtractor={(item,index) => index.toString()}
@@ -130,29 +136,34 @@ class CartProducts extends Component {
                    descont={item.descont} />
                )} 
              />
-             <View style={styles.cartBottom} >
-                <View style={styles.containerCalculation}>
-                    <View style={{ flexDirection : "row" , justifyContent : "space-between" , width : width * 0.9  }} >
-                        <Text style={{ fontSize : 18 , color : "white" , opacity : 0.3 }} >Total</Text>
-                        <Text style={{ fontSize : 18 , color : "white" }} >{ this.formatPrice(totalPrice()) }</Text>
-                    </View>
-                    <View style={{ flexDirection : "row" , justifyContent : "space-between" , width : width * 0.9 }} >
-                        <Text style={{ fontSize : 18 , color : "white" , opacity : 0.3 }} >Desconto</Text>
-                        <Text style={{ fontSize : 18 , color : "white" }} >{ this.formatPrice(totalDescont()) }</Text>
-                    </View>
-                    <View style={{ width : width * 0.9 , marginTop : 10 }} >
-                        <Button
-                          // onPress={this.onLogin.bind(this)}
-                          style={styles.buttonCheckout}
-                          color="#65ff70"
-                          // disabled={activeLoginIn}
-                          title={ "Comprar Products" }
-                        />
-                    </View>
-                    
-                </View>
-               
-             </View>
+             {
+                 products.length != 0 ? (
+                    <View style={styles.cartBottom} >
+
+                        <View style={styles.containerCalculation}>
+                            <View style={{ flexDirection : "row" , justifyContent : "space-between" , width : width * 0.9  }} >
+                                <Text style={{ fontSize : 18 , color : "white" , opacity : 0.3 }} >Total</Text>
+                                <Text style={{ fontSize : 18 , color : "white" }} >{ numberToReal(totalPrice(),true) }</Text>
+                            </View>
+                            <View style={{ flexDirection : "row" , justifyContent : "space-between" , width : width * 0.9 }} >
+                                <Text style={{ fontSize : 18 , color : "white" , opacity : 0.3 }} >Desconto</Text>
+                                <Text style={{ fontSize : 18 , color : "white" }} >{ numberToReal(totalDescont(),true) }</Text>
+                            </View>
+                        </View>
+
+                        <View style={{ flexDirection : "row"  }} >
+                            <TouchableNativeFeedback onPress={() => this.onTransaction()} >
+                                <View style={{ flex :1 , marginHorizontal : 20 , marginBottom  : 10 , height : 60 , backgroundColor : colors.lightGreen , flexDirection : "row" , alignItems : "center" , justifyContent : "space-evenly" }} >
+                                    <Text style={{ color : "white" , fontWeight : "500" , fontSize : 18 }} >Comprar Produtos</Text>
+                                    <Icon color="white" size={30} name="arrow-forward" />
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                        
+                 </View>
+                 ) : null
+             }
+             
         </ContainerLayout>
       )
   }
@@ -197,9 +208,9 @@ const styles = StyleSheet.create({
     cardDelete : {
         position : "absolute",
         left : 0,
-        top : -5,
+        top : 0,
         backgroundColor : colors.lightSlash,
-        height : 90,
+        height : 80,
         width : 50,
         borderRadius : 4,
         zIndex : 4,
@@ -234,16 +245,16 @@ const styles = StyleSheet.create({
     },
     cartBottom : {
         flexDirection : "column",
-        alignItems : "flex-start",
-        justifyContent : "flex-start"
+        alignItems : "center",
+        justifyContent : "center"
     },
     containerCalculation : {
-        height : 160,
         flexDirection : "column",
         alignItems : "center",
         justifyContent : "flex-start",
         paddingHorizontal : 25,
-        paddingVertical : 25
+        paddingTop : 25,
+        marginBottom : 15
     },
     buttonCheckout : {
         flex: 1,

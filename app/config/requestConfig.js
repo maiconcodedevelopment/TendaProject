@@ -20,11 +20,20 @@ export let request = {
             all : url + "/product/promotion/all"
         }
     },
+    adress : {
+        search : url + "/adress/search"
+    },
     promotion : {
         all : url + "/promotion/all"
     },
     category: {
         subcategory: url + "/category/categorywithsubcategory"
+    },
+    cardcredit : {
+        register : url + "/cardcredit/create/"
+    },
+    checkout : {
+        calculationfee : url + "/checkout/calculationfee",
     },
     colors: {
         category: url + "/colors/categorywithcolors"

@@ -13,8 +13,6 @@ class Sidebar extends React.Component{
   render(){
     const { user , navigation } = this.props
 
-    console.log(user)
-    console.log(this.props)
 
     return(
       <View style={styles.container}>
@@ -28,8 +26,8 @@ class Sidebar extends React.Component{
         </LinearGradient>
         <ScrollView>
            <TouchableNativeFeedback onPress={() => navigation.dispatch(navigationActionCartProducts) } >
-           <View style={{ flexDirection : "row" , alignItems : "center" , justifyContent  : "space-between" , paddingHorizontal : 20 , marginTop : 15 }} >
-              <Text style={{ fontWeight : "500" }} >Produto Carrinho</Text>
+           <View style={{ flexDirection : "row" , alignItems : "center" , justifyContent  : "space-between" , paddingHorizontal : 20 , paddingVertical : 15 }} >
+              <Text style={{ fontWeight : "500" }} >Carrinho</Text>
               <Image source={require('../../assets/icons/png/car_love.png')} style={{ width : 25, height : 25 }}  />
            </View>
            </TouchableNativeFeedback>

@@ -79,53 +79,93 @@ export default function actionProducts(state = initialStateProducts, action) {
       };
       break;
     case "REQUEST_ADD_PRODUCT":
-      console.log(action);
       let {
         products,
+        promotionsProduct,
         searchProducts
       } = state;
 
       var productsArrayState = []
+      var productsPromotionArrayState = []
       var searchProductsArrayState = []
 
-      if (searchProducts.length > 0){
+      if (searchProducts.length > 0 ){
 
-        console.warn("sim kakakak ter search")
+        let productSearchState = searchProducts.filter(product => product.id === action.payload)
 
-        let productSearchState = searchProducts.filter(product => product.id === action.payload)[0]
-         
-        let searchAddProducts = {
-          ...productSearchState,
-          like : !productSearchState.like 
-        }
+        if(productSearchState.length > 0){
 
-        searchProductsArrayState = state.searchProducts.map(product => product.id === searchAddProducts.id ? searchAddProducts : product )
+          productSearchState = productSearchState[0]
+
+          let searchAddProducts = {
+            ...productSearchState,
+            like : !productSearchState.like 
+          }
+  
+          searchProductsArrayState = state.searchProducts.map(product => product.id === searchAddProducts.id ? searchAddProducts : product )
+        } 
+      
         
       }
 
-      if (products.length > 0) {
+      if (products.length > 0 ) {
          let productsState = products.filter(
           product => product.id === action.payload
-        )[0];
-
-        let productlike = {
-          ...productsState,
-          like: !productsState.like
-        };
-
-        productsArrayState = state.products.map(product =>
-          product.id === productlike.id ? productlike : product
         );
+
+        if(productsState.length > 0){
+          
+          productsState = productsState[0]
+
+          let productlike = {
+            ...productsState,
+            like: !productsState.like
+          };
+  
+          productsArrayState = state.products.map(product =>
+            product.id === productlike.id ? productlike : product
+          );
+        }
+     
 
       }
 
-        //promotionsProduct :
-        //insert 
+      if(promotionsProduct.length > 0 ){
+
+        if (promotionsProduct.filter(
+          promotion => promotion.product.id === action.payload
+        ).length > 0) {
+
+          let productsPromotionState = state.promotionsProduct.filter(
+            promotion => promotion.product.id === action.payload
+          )[0]
+          
+          let productPromotionlike = {
+            ...productsPromotionState,
+            product : {
+              ...productsPromotionState.product,
+              like : !productsPromotionState.product.like
+            }
+          }
+  
+          productsPromotionArrayState = promotionsProduct.map(promotion =>
+            promotion.product.id === productPromotionlike.product.id ? productPromotionlike : promotion
+          )
+
+        }else{
+
+          productsPromotionArrayState = promotionsProduct
+        }
+
+
+        
+      }
 
 
       return {
         ...state,
         products: productsArrayState,
+        promotionsProduct : productsPromotionArrayState,
         searchProducts : searchProductsArrayState,
       };
       break;
@@ -136,6 +176,14 @@ export default function actionProducts(state = initialStateProducts, action) {
         ...state
       }
       break;
+    case "FILTER_ADD_INCREMENT_PRODUCTS":
+      
+      return{
+        ...state,
+        products : [...state.products,...action.payload]
+      }
+      break;
+
     case "FILTER_ADD_PRODUCTS":
       return {
         ...state,
@@ -156,9 +204,15 @@ export default function actionProducts(state = initialStateProducts, action) {
       };
       break;
 
+    case "FILTER_RESET_CATEGORY":
+
+      return{
+        ...state,
+        categorys : state.categorys.map(category => category.id === action.payload ? { ...category , active : true } : { ...category , active : false } )
+      }
+      break;
+
     case "FILTER_ADD_CATEGORY":
-      console.log("agora sim");
-      console.log(action.payload);
 
       let newlistcategorys = state.categorys.map(category =>
         category.id === action.payload ? {
@@ -185,8 +239,6 @@ export default function actionProducts(state = initialStateProducts, action) {
           .map(type => type.data)[0]
           .filter(type => type.active);
 
-        console.log(newlistSubcategory);
-
         listTypesCategory = state.filter.types.filter(item => {
           return (
             newlistSubcategory.filter(
@@ -196,17 +248,14 @@ export default function actionProducts(state = initialStateProducts, action) {
         });
 
         for (const key in state.filter.types) {
-          console.log("yes category here !!");
-          console.log(newlistSubcategory);
+
           for (const keycategory in newlistSubcategory) {
             if (keycategory.id === key.id) {
-              console.log("sim");
+              
             }
           }
         }
 
-        console.log(listTypesCategory);
-        console.log("sim asgora sim chegou");
       }
 
       if (state.filter.colors.length > 0 && categorycolor.length) {
@@ -220,9 +269,6 @@ export default function actionProducts(state = initialStateProducts, action) {
           newListColor.filter(c => c.id === item.id && c.active).length === 0
         );
 
-        console.log("colors list");
-        console.log(newListColor);
-        console.log(listColorCategory);
       }
 
       return {
@@ -236,7 +282,6 @@ export default function actionProducts(state = initialStateProducts, action) {
       };
       break;
     case "FILTER_ADD_TYPES":
-      console.log(action.payload);
 
       if (state.categorys.filter(category => category.active).length === 0) {
         return {
@@ -247,10 +292,8 @@ export default function actionProducts(state = initialStateProducts, action) {
 
       if (state.types.length > 0) {
         let algu = action.payload.map(itemtype => {
-          if (
-            state.types.filter(type => type.idcategory === itemtype.idcategory)
-            .length > 0
-          ) {
+          if ( state.types.filter(type => type.idcategory === itemtype.idcategory).length > 0) {
+
             let stateData = itemtype.data;
 
             const stateType = state.types
@@ -266,10 +309,6 @@ export default function actionProducts(state = initialStateProducts, action) {
                 ...itemtype
               };
             }
-
-            console.log(stateData);
-            console.log(statehere);
-            console.log("start here");
 
             return {
               ...itemtype,
@@ -388,8 +427,6 @@ export default function actionProducts(state = initialStateProducts, action) {
             color => color.id !== action.payload
           );
 
-          console.log(filtercolors);
-
           return {
             ...state,
             colors,
@@ -455,6 +492,17 @@ export const userAddProduct = id => ({
 });
 
 //filter
+export const filterAddIncrementProduct = products => ({
+  type : "FILTER_ADD_INCREMENT_PRODUCTS",
+  payload : products
+})
+
+export const filterResetCategory = category => ({
+  type : "FILTER_RESET_CATEGORY",
+  payload : category
+})
+
+
 export const filterAddProducts = products => ({
   type: "FILTER_ADD_PRODUCTS",
   payload: products

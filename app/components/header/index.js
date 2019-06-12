@@ -47,11 +47,9 @@ class HeaderSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps)
   }
 
   componentWillUpdate(nextProps) {
-    console.log(nextProps)
   }
 
   searchDispatch(search) {
@@ -62,7 +60,6 @@ class HeaderSearch extends React.Component {
     model.concatURL();
 
     requestProductSearch(model.getURL()).then(response => {
-      console.log(response);
       this.setState({
         products: response
       });

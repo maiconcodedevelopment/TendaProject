@@ -25,7 +25,6 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   if (action.type === "INCREASE_COUNT") {
-    console.warn(state);
     return {
       count: state.count + 1
     };

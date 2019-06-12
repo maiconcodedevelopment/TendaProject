@@ -9,8 +9,8 @@ export function requestProducts() {
     }).then(response => response.json());
 }
 
-export function requestPromotionsProduct(){
-    return fetch(request.product.promotions.all).then((response)=>{
+export function requestPromotionsProduct({ iduser }){
+    return fetch(`${request.product.promotions.all}?iduser=${iduser}`).then((response)=>{
         return response.json()
     })
 }

@@ -22,21 +22,15 @@ export default function actionUser(state = initialStateUser , action){
                 ...action.payload
             }
 
-            console.log(productUpdateIncrement)
 
             productsUpdate = state.products.map(product => {
-                console.log(product.id,"===",productUpdateIncrement.id)
                 if(product.id === productUpdateIncrement.id){
                     return productUpdateIncrement
                 }else{
                     return product
                 }
             } )
-
-            console.log("nao nao")
-            console.log(productsUpdate)
-            console.log("sim sim")
-
+            
             return {
                 ...state,
                 products : productsUpdate

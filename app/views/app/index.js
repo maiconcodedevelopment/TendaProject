@@ -33,6 +33,9 @@ import { request } from "../../config/requestConfig";
 import HeaderSearch from "../../components/header";
 import { navigationActionProduct } from "../../router/actions/Product";
 import { requestCartProducts, requestUserGet } from "../../redux/actions/Users/request";
+import TSCardElevation from "../../components/card/ts-cart-elevation";
+import { Button } from "react-native-elements";
+import TDStatus from "../../components/alert/td-status";
 
 class App extends React.Component {
 
@@ -43,7 +46,6 @@ class App extends React.Component {
 
   constructor(state) {
     super(state);
-    console.log("bnai")
     this.state = {
       entries: [
         {
@@ -70,13 +72,13 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    // this.props.productAll(10);
-    console.log("simsimsim")
+
+    const { user } = this.props
+
     await requestPromotionMain().then((response) => {
       this.props.promotionsMain(response)
     })
-    await requestPromotionsProduct().then((response) => {
-       console.log(response)
+    await requestPromotionsProduct({ iduser : user.id }).then((response) => {
        this.props.promotionsAddProduct(response)
     })
 
@@ -90,15 +92,10 @@ class App extends React.Component {
     products.append("iduser", user.id);
     products.concatURL();
 
-    console.log(products.getURL());
-    // products.pushUser(1);
-    // products.pushCategorys({ categorys: [id] });
-
-
-    requestCategoryProducts(products.getURL()).then(response => {
-      this.props.categoryProductAll(id, response);
-      navigation.dispatch(navigationActionProdutcs);
-    });
+    // requestCategoryProducts(products.getURL()).then(response => {
+      // this.props.categoryProductAll(id, response);
+    navigation.dispatch(navigationActionProdutcs({ params : id }));
+    // });
 
 
   }
@@ -119,9 +116,29 @@ class App extends React.Component {
     );
   }
 
+  //fuse.js
+  handleUserClick = async () => {
+    try {
+      await this.myPromise(false);
+      await this.myPromise(true);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  myPromise = (param) => {
+    return new Promise((resolve, reject) => {
+      (param)
+        ? resolve()
+        : reject('erro');
+    })
+  }
+
+
   render() {
     const { promotionsProduct , promotions } = this.props
-   
+
+    
     return (
       <ContainerLayout
         style={{
@@ -131,6 +148,7 @@ class App extends React.Component {
           flex: 1
         }}
       >
+     
         <ScrollView
           contentContainerStyle={{ paddingTop: 80 }}
           showsVerticalScrollIndicator={false}
@@ -219,6 +237,7 @@ class App extends React.Component {
             }
             </ScrollView>
           </View>
+          
         </ScrollView>
       </ContainerLayout>
     );

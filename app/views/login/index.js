@@ -39,6 +39,9 @@ const resetAction = StackActions.reset({
 });
 
 class Login extends React.Component {
+
+  inputs = {};
+
   constructor(state) {
     super(state);
     this.state = {
@@ -118,28 +121,31 @@ class Login extends React.Component {
       await requestLoginIn(user).then(({ response }) => {
         // console.log(response)
         const { id } = response
-        console.log("kakak",id,"klakakak")
         userSetState(response)
         AsyncStorage.setItem("user", JSON.stringify(id)).then(() => {
           this.props.navigation.dispatch(navigationAppAction);
         });
-      }).catch(() => {
-        console.log("not found login")
+      }).catch((errors) => {
+        console.log(errors)
       })
     }else if(view === "register"){
       await requestRegister(user).then(({ response }) => {
         const { id } = response
-        console.log("kakak",id,"klakakak")
         userSetState(response)
         AsyncStorage.setItem("user", JSON.stringify(id)).then(() => {
           this.props.navigation.dispatch(navigationAppAction);
         });
 
-      }).catch(() => {
-        console.log("not fount reigister")
+      }).catch((errors) => {
+        console.log(errors)
       })
     }
     // await AsyncStorage.setItem("user", JSON.stringify(this.state.user));
+
+  }
+
+  focusTheField = (id) => {
+    this.inputs[id].focus();
 
   }
 
@@ -175,7 +181,12 @@ class Login extends React.Component {
              <View style={styles.inputLogin}>
               <TextInput
                style={styles.inputTextLogin}
+               ref={input => { this.inputs["field1"] = input }}
                placeholder="Nome"
+               label={"field1"}
+               blurOnSubmit={false}
+               returnKeyType="next"
+               onSubmitEditing={() => { this.focusTheField('field2') }}
                value={username}
                underlineColorAndroid="#3e0644"
                onChangeText={text =>{ 
@@ -191,7 +202,11 @@ class Login extends React.Component {
            <View style={styles.inputLogin}>
              <TextInput
                style={styles.inputTextLogin}
+               ref={input => { this.inputs["field2"] = input }}
                placeholder="E-mail"
+               label={"field2"}
+               returnKeyType="next"
+               onSubmitEditing={() => { this.focusTheField('field3') }}
                value={email}
                underlineColorAndroid="#3e0644"
                onChangeText={text =>{ 
@@ -204,7 +219,12 @@ class Login extends React.Component {
             <View style={styles.inputLogin}>
                 <TextInput
                   style={styles.inputTextLogin}
+                  ref={input => this.inputs["field3"] = input}
                   placeholder="Senha"
+                  label="field3"
+                  returnKeyType="done"
+                  blurOnSubmit={false}
+                  onSubmitEditing={this.onLogin.bind(this)}
                   value={password}
                   underlineColorAndroid="#3e0644"
                   secureTextEntry={true}

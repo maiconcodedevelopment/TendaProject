@@ -32,10 +32,9 @@ export const colors = {
     slashStrong: "#ff0a44",
     lightSlash: "#ff0d46",
     lightGreen: "#65ff70",
-    blackDark: "",
+    blackDark: "black",
     lightPurple: "#1e0a1e",
-
-
+    lightGray : "#595959"
 }
 
 export const statusBar = 30

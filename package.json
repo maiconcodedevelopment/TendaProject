@@ -12,6 +12,7 @@
     "expo-react-native-shadow": "^1.0.3",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-credit-card-input": "^0.4.1",
     "react-native-elements": "^1.0.0",
     "react-native-snap-carousel": "^3.7.5",
     "react-native-text-gradient": "0.0.16",

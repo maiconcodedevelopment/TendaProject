@@ -73,8 +73,6 @@ class FilterProducts extends React.Component {
   }
 
   onTouchSelectCategory(id) {
-    console.log(id);
-    console.log("id category (())");
 
     let promisefilter = new Promise((resolve, reject) => {
       resolve(this.props.filterAddCategory(id));
@@ -137,34 +135,8 @@ class FilterProducts extends React.Component {
 
   filterProducts() {
     const { navigation, categorys, types, price } = this.props;
-
-    let products = new URLModel(request.product.all, "GET");
-
-    products.append("pricestart", price.start);
-    products.append("priceend", price.end);
-
-    categorys.map(category => {
-      if (category.active) {
-        products.append("categorys", category.id);
-      }
-    });
-
-    types.map(type => {
-      products.append("subcategorys", type.id);
-    });
-
-    products.append("iduser", 1);
-
-    products.concatURL();
-
-    requestProductsFilter(products.getURL())
-      .then(response => {
-        console.log(response);
-        this.props.filterAddProducts(response);
-      })
-      .then(send => {
-        navigation.goBack();
-      });
+    navigation.goBack()
+    navigation.state.params.resetProducts({ categorys , types , price })
   }
 
   render() {

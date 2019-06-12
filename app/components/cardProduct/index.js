@@ -83,7 +83,8 @@ export class CardProduct extends React.Component {
   }
 
   priceFormat(price) {
-      return new Intl.NumberFormat('pt-br',{ style : 'currency', currency : 'BRL' }).format(price)
+    return price  
+    //return new Intl.NumberFormat('pt-br',{ style : 'currency', currency : 'BRL' }).format(price)
   }
 
   render() {
