@@ -161,12 +161,11 @@ export default function actionProducts(state = initialStateProducts, action) {
         
       }
 
-
       return {
         ...state,
         products: productsArrayState,
         promotionsProduct : productsPromotionArrayState,
-        searchProducts : searchProductsArrayState,
+        searchProducts : searchProductsArrayState
       };
       break;
 
@@ -176,6 +175,18 @@ export default function actionProducts(state = initialStateProducts, action) {
         ...state
       }
       break;
+    case "REQUEST_REMOVE_PRODUCTS_ALL":
+      let productsAll = state.products.length > 0 ? state.products.map(product => product.like ? { ...product , like : false } : product) : state.products
+      let promotionsAll = state.promotionsProduct.length > 0 ? state.promotionsProduct.map(promotion => promotion.product.like ? { ...promotion , product : { ...promotion.product , like : false}} : promotion ) : state.promotionsProduct
+      let searchProductsAll = state.searchProducts.length > 0 ? state.searchProducts.map(product => product.like ? { ...product , like : false } : product) : state.searchProducts
+
+      return{
+        ...state,
+        products : productsAll,
+        promotionsProduct : promotionsAll,
+        searchProducts : searchProductsAll
+      }
+      break
     case "FILTER_ADD_INCREMENT_PRODUCTS":
       
       return{
@@ -490,6 +501,10 @@ export const userAddProduct = id => ({
   type: "REQUEST_ADD_PRODUCT",
   payload: id
 });
+
+export const removeProductsAll = () => ({
+  type : "REQUEST_REMOVE_PRODUCTS_ALL",
+})
 
 //filter
 export const filterAddIncrementProduct = products => ({

@@ -21,7 +21,8 @@
     "redux": "^4.0.1"
   },
   "devDependencies": {
-    "babel-preset-expo": "^5.0.0"
+    "babel-preset-expo": "^5.0.0",
+    "exp": "^57.2.1"
   },
   "private": true
 }

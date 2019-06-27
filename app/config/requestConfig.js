@@ -33,6 +33,7 @@ export let request = {
         register : url + "/cardcredit/create/"
     },
     checkout : {
+        products : url + "/checkout/products/",
         calculationfee : url + "/checkout/calculationfee",
     },
     colors: {

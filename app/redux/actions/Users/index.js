@@ -56,6 +56,11 @@ export default function actionUser(state = initialStateUser , action){
                 ...state,
                 products : [...state.products,action.payload]
             }
+        case USER_CLEAR_PRODUCTS:
+            return {
+                ...state,
+                products : action.payload
+            }
         default:
             return state
             break;
@@ -66,6 +71,7 @@ export const USER_LOGIIN_OR_REGISTER = "USER_LOGIIN_OR_REGISTER"
 export const USER_TOTAL_PRODUCTS = "USER_TOTAL_PRODUCTS"
 export const USER_INCREMENT_PRODUCT = "USER_INCREMENT_PRODUCT"
 export const USER_ADD_AND_REMOVE_PRODUCT = "USER_ADD_AND_REMOVE_PRODUCT"
+export const USER_CLEAR_PRODUCTS = "USER_CLEAR_PRODUCTS"
 
 export const userSetState = (data) => ({
     type : USER_LOGIIN_OR_REGISTER,
@@ -84,5 +90,10 @@ export const userIncrementProduct = (data) => ({
 
 export const userAddAndRemoveProduct = (data) => ({
     type : USER_ADD_AND_REMOVE_PRODUCT,
+    payload : data
+})
+
+export const userClearProducts = (data) => ({
+    type : USER_CLEAR_PRODUCTS,
     payload : data
 })

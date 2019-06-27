@@ -34,12 +34,13 @@ export function requestLoginIn({ email , password }){
     })
 }
 
-export function requestRegister({ username , email , password }){
+export function requestRegister({ username , email , password , cpf }){
     
     let model = new FormData()
     model.append("username",username)
     model.append("email",email)
     model.append("password",password)
+    model.append("cpf",cpf)
 
     return fetch(request.users.login, {
         method : "POST",
@@ -141,6 +142,42 @@ export function requestRegisterCardCredit({ iduser , card_number , card_cvv , ca
         }
         throw new "Exception"
     }).then(response => {
+        return { response : response }
+    })
+}
+
+export  function requestCheckout ({ iduser , city , street , street_number , neighborhood , country , complement , state , federation_unity , zipcode , id_card , installments , delivery_date , shipping_date , shipping_type , payment_method , order , phone }){
+    
+    let checkout = new FormData()
+    checkout.append("city",city)
+    checkout.append("street",street)
+    checkout.append("street_number",street_number)
+    checkout.append("neighborhood",neighborhood)
+    checkout.append("country",country)
+    checkout.append("complement",complement)
+    checkout.append("state",state)
+    checkout.append("federation_unity",federation_unity)
+    checkout.append("zipcode",zipcode)
+    checkout.append("id_card",id_card)
+    checkout.append("installments",installments)
+    checkout.append("delivery_date",delivery_date)
+    checkout.append("shipping_type",shipping_type)
+    checkout.append("payment_method",payment_method)
+    checkout.append("order",order) //micropost
+    checkout.append("phone",phone)
+
+    return fetch(`${request.checkout.products}${iduser}`,{
+        method : "POST",
+        body : checkout
+    }).then((response)=>{
+        if(response.status === 200){
+            return response.json()
+        }
+        if(response.status === 400){
+            return response.json()
+        }
+        throw new "Exception"
+    }).then((response) => {
         return { response : response }
     })
 }

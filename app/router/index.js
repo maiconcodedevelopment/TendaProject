@@ -29,6 +29,7 @@ import HeaderCheckout from "../components/header/HeaderCheckout"
 
 import AdressTransaction from "../views/Transaction/screen/Adress";
 import Transaction from "../views/Transaction"
+import TransactionList from "../views/TransactionList";
 
 let transitionConfiguration = () => {
   return {
@@ -172,6 +173,9 @@ const menuDrawer = createDrawerNavigator(
     CardProducts : {
       screen : CardProducts
     },
+    TransactionList : {
+      screen : TransactionList
+    }
   },
   {
     initialRouteName: "Home",

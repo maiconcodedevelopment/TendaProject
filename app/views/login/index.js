@@ -59,6 +59,7 @@ class Login extends React.Component {
         username : "",
         email: "",
         password: "",
+        cpf : ""
       }
     };
 
@@ -98,7 +99,8 @@ class Login extends React.Component {
           ...state.user,
           username : "",
           email : "",
-          password : ""
+          password : "",
+          cpf : ""
         }
       }
     },() => {
@@ -117,6 +119,9 @@ class Login extends React.Component {
   async onLogin() {
     const { view , user } = this.state
     const { userSetState } = this.props
+
+    console.warn(user)
+
     if(view === "login"){
       await requestLoginIn(user).then(({ response }) => {
         // console.log(response)
@@ -151,7 +156,7 @@ class Login extends React.Component {
 
   render() {
     const { activeLoginIn , views , view } = this.state
-    const { username , email , password } = this.state.user
+    const { username , email , password , cpf } = this.state.user
 
     var buttonName = view
 
@@ -173,11 +178,12 @@ class Login extends React.Component {
             style={styles.logo}
             source={require("../../assets/img/main-logo.png")}
           />
-          <View style={{ height : 230 , alignItems : "center" , justifyContent : 'center' }} >
+          <View style={{ height : 280 , alignItems : "center" , justifyContent : 'center' }} >
 
          {
           view == "register" ? (
             <View>
+
              <View style={styles.inputLogin}>
               <TextInput
                style={styles.inputTextLogin}
@@ -196,17 +202,37 @@ class Login extends React.Component {
                 }}
               />
               </View>
+
+            <View style={styles.inputLogin}>
+              <TextInput
+               style={styles.inputTextLogin}
+               ref={input => { this.inputs["field2"] = input }}
+               placeholder="CPF"
+               label={"field2"}
+               blurOnSubmit={false}
+               returnKeyType="next"
+               onSubmitEditing={() => { this.focusTheField('field3') }}
+               value={cpf}
+               underlineColorAndroid="#3e0644"
+               onChangeText={text =>{ 
+                  this.setState({ user: { ...this.state.user, cpf: text } },() => {
+                    this.onUpdateInputs()
+                  })
+                }}
+              />
+            </View>
+              
             </View>
           ) : null
         }
            <View style={styles.inputLogin}>
              <TextInput
                style={styles.inputTextLogin}
-               ref={input => { this.inputs["field2"] = input }}
+               ref={input => { this.inputs["field3"] = input }}
                placeholder="E-mail"
-               label={"field2"}
+               label={"field3"}
                returnKeyType="next"
-               onSubmitEditing={() => { this.focusTheField('field3') }}
+               onSubmitEditing={() => { this.focusTheField('field4') }}
                value={email}
                underlineColorAndroid="#3e0644"
                onChangeText={text =>{ 
@@ -219,12 +245,12 @@ class Login extends React.Component {
             <View style={styles.inputLogin}>
                 <TextInput
                   style={styles.inputTextLogin}
-                  ref={input => this.inputs["field3"] = input}
+                  ref={input => this.inputs["field4"] = input}
                   placeholder="Senha"
-                  label="field3"
+                  label="field4"
                   returnKeyType="done"
                   blurOnSubmit={false}
-                  onSubmitEditing={this.onLogin.bind(this)}
+                  // onSubmitEditing={this.onLogin.bind(this)}
                   value={password}
                   underlineColorAndroid="#3e0644"
                   secureTextEntry={true}
@@ -251,12 +277,12 @@ class Login extends React.Component {
               title={ buttonName }
             />
 
-            <View style={{ flexDirection : "row" , justifyContent : "space-between" , alignItems : "center" , marginVertical : 15 }} >
+            <View style={{ flexDirection : "row" , justifyContent : "space-between" , alignItems : "center" }} >
               <TouchableOpacity onPress={() => this.dispatchView("register")} >
-                <Text style={{ color:"white" , fontWeight : '500' ,  }} >Cadastrar</Text>
+                <Text style={{ color:"white" , textAlign : "left" , fontWeight : '500' , marginRight : 15 , marginTop : 15  }} >Cadastrar</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => this.dispatchView("login")} >
-                 <Text style={{ color:"white" , fontWeight : '500' ,  }} >Esqueci a senha</Text>
+                 <Text style={{ color:"white" , fontWeight : '500' , textAlign : "right" , marginLeft : 15 , marginTop : 15 }} >Esqueci a senha</Text>
               </TouchableOpacity>
             </View>
 

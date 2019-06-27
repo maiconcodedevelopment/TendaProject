@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View , ViewBase , ScrollView , TextInput , Text , Image , TouchableOpacity , TouchableNativeFeedback , Animated , ImageBackground , StyleSheet } from "react-native";
+import { View , ViewBase , ScrollView , TextInput , Text , Image , TouchableOpacity , TouchableNativeFeedback , Animated , ImageBackground , SectionList  , Picker , ActivityIndicator ,  StyleSheet , Platform } from "react-native";
 import { numberToReal } from "../../helper/formatMoney";
 import ContainerLayout from '../../components/containerLayout';
 import { width, colors } from '../../styles';
@@ -8,10 +8,89 @@ import TSInput from '../../components/input/ts-input';
 
 import { Icon, Button } from "react-native-elements";
 import TSCardElevation from '../../components/card/ts-cart-elevation';
+import { url } from '../../config/requestConfig';
 
 import { connect } from "react-redux";
 import { LiteCreditCardInput } from "react-native-credit-card-input";
-import { requestAdressSearch, requestTransactionFreightCalculation, requestRegisterCardCredit } from '../../redux/actions/Users/request';
+
+import { removeProductsAll } from "../../redux/actions/Products";
+import { userClearProducts  } from "../../redux/actions/Users/index";
+
+import { requestAdressSearch, requestTransactionFreightCalculation, requestRegisterCardCredit, requestCheckout } from '../../redux/actions/Users/request';
+import {  navigationAppAction } from "../../router/actions/App";
+import { bindActionCreators } from 'redux';
+
+
+function TSReloadApplication(props){
+
+  let animated = new Animated.Value(0)
+  let activeZindex = false
+
+  if(props.active){
+
+    activeZindex = true
+
+    Animated.timing(animated,{
+      toValue : 1,
+      duration : 500,
+      useNativeDriver : Platform.OS == "android",
+    }).start()
+
+  }else{
+    Animated.timing(animated,{
+      toValue : 0,
+      duration : 500,
+      useNativeDriver : Platform.OS == "android",
+    }).start(() => {
+      activeZindex = false
+    })
+  }
+
+  let opacityAnimated = animated.interpolate({
+    inputRange : [0,1],
+    outputRange : [0,1],
+    extrapolate : "clamp",
+  })
+
+  return(
+    <Animated.View style={[styleRelad.container,{ opacity : opacityAnimated , zIndex : activeZindex ? 10 : -1 }]} >
+      <View style={styleRelad.containerLoad} >
+        <Text style={styleRelad.title} >Carregando</Text>
+        <ActivityIndicator color={colors.slashStrong} />
+      </View>
+    </Animated.View>
+  )
+}
+
+const styleRelad = StyleSheet.create({
+  container : {
+    width : '100%',
+    height : '100%',
+    position : "absolute",
+    left : 0,
+    top : 0,
+    backgroundColor : "rgba(0,0,0,0.5)",
+    flex : 1,
+    alignItems : "center",
+    justifyContent : "center"
+  },
+  containerLoad : {
+    paddingHorizontal : 10,
+    height : 65,
+    backgroundColor : "rgba(255,255,255,1)",
+    flexDirection : "row",
+    alignItems : "center",
+    justifyContent : "space-around",
+    borderRadius : 4
+  },
+  title : {
+    fontSize : 18,
+    fontWeight : "500",
+    color : colors.slashStrong,
+    marginRight : 5
+  }
+})
+
 
 function ButtonNext(props){
 
@@ -70,8 +149,8 @@ function CardInfomation(props){
     <View style={{ flexDirection : "row" }} >
       <View style={{ flex : 1 , alignItems : "center" , flexWrap : "wrap" , justifyContent : "space-between" , flexDirection : "row" }} >
         {
-          props.cards.map((item) => (
-            <View style={[{ flexDirection : "column" , flexBasis : "50%" , justifyContent : "flex-start" , marginTop : 10 },item.style]} >
+          props.cards.map((item,index) => (
+            <View key={index}  style={[{ flexDirection : "column" , flexBasis : "50%" , justifyContent : "flex-start" , marginTop : 10 },item.style]} >
               <Text style={[{ fontSize : 14 , color : colors.lightGray , fontWeight : '400' },item.styleTitle]} >{item.title}</Text>
               <Text style={[{ fontSize : 18 , marginTop : 4 , fontWeight : '400' },item.styleDesc]} >{item.desc}</Text>
             </View>
@@ -90,6 +169,7 @@ class Transaction extends React.Component {
     super(props)
 
     this.state = {
+      activeReload : false,
       process : [
         { 
           icon : "room",
@@ -142,12 +222,15 @@ class Transaction extends React.Component {
           card_expiration_date : "",
           card_cvv : "",
           card_holder_name : "",
-          brand : ""
+          brand : url + "/cardcredit/media/images_icons/stp_card_mastercard.png"
         }
       },
       checkoutPayment : {
-        typePayment : "card",
-        amountfreigth : 0
+        typePayment : "credit_card",
+        deadline : null,
+        installments : 12,
+        amountfreigth : 0,
+        payInstallments : 1,
       }
     }
 
@@ -157,6 +240,10 @@ class Transaction extends React.Component {
     this.marginHorizontal = 10
     this.itemWidth = (width / this.quantity) - (this.quantity - 1) * this.space + this.marginHorizontal
     this.conponentScroll = null
+  }
+
+  componentDidMount(){
+    console.log(this.props)
   }
 
   componentWillReceiveProps(nextProps){
@@ -175,6 +262,14 @@ class Transaction extends React.Component {
     })
   }
 
+  activeReload = () => {
+    this.setState(state => {
+      return {
+        activeReload : !state.activeReload 
+      }
+    })
+  }
+
   activeBarAdress = () => {
     this.setState({
       adress : {
@@ -190,8 +285,6 @@ class Transaction extends React.Component {
     const { process } = this.state
 
     let updateProcess = process.map(item => item.icon === name ? { ...item , active } : item )
-  
-    console.log(updateProcess)
 
     this.setState({
       process : updateProcess
@@ -199,26 +292,33 @@ class Transaction extends React.Component {
   }
 
   checkSelectService = (value) => {
+    const { adress  } = this.state
+    const { listService , city , country , state , neighborhood , street , street_number , zipcode , complement } = this.state.adress
 
-    const { listService  } = this.state.adress
-
-    this.activeBarAdress()
-  
-    let listServiceUpdate = listService.map((item) => item.value === value ? {...item , active : !item.active } : { ...item , active : false } )
-
-    this.setState((state) => {
-      return {
-        adress: {
-          ...state.adress,
-          shippingType : value,
-          listService : listServiceUpdate
+    if(city.length > 0 && state.length > 0 && neighborhood.length > 0 && street.length > 0 && street_number.length > 0 && zipcode.length > 0 && complement.length > 0 ){
+      let listServiceUpdate = listService.map((item) => item.value === value ? {...item , active : true } : { ...item , active : false } )
+        this.setState((state) => {
+          return {
+            adress: {
+              ...state.adress,
+              shippingType : value,
+              listService : listServiceUpdate
+            }
+          }
+        },() => {
+         if(listServiceUpdate.filter(service => service.active).length > 0){
+             this.onRequestFreightCalculation()
+           }
+        })
+    }else{
+      Object.keys(adress).map(attrib => {
+        if(typeof adress[attrib] == "string"){
+          console.log(adress[attrib],"----->")
         }
-      }
-    },() => {
-      this.onRequestFreightCalculation()
-      console.log(this.state)
-    })
+      })
+    }
 
+  
   }
 
   navigatorTypeCheckout = (navigator) => {
@@ -229,7 +329,7 @@ class Transaction extends React.Component {
       this.activeProcess("attach-money",false)
     }
 
-    if(navigator == "ticket"){
+    if(navigator == "boleto"){
       this.activeProcess("attach-money",true)
     }
 
@@ -274,6 +374,16 @@ class Transaction extends React.Component {
     })
   }
 
+  onChangeIntallments = (intallments,intemIndex) => {
+    const { checkoutPayment } = this.state
+    this.setState({
+      checkoutPayment : {
+        ...checkoutPayment,
+        payInstallments : intallments
+      }
+    })
+  }
+
   priceTotalCheckout = () => {
     const { amountfreigth } = this.state.checkoutPayment
     const { totalPrice , totalDescont } = this.props
@@ -309,6 +419,9 @@ class Transaction extends React.Component {
     const { checkoutPayment } = this.state
     const { listService , street , street_number , city , complement , neighborhood , federation_unity , zipcode   } = this.state.adress
 
+    this.activeBarAdress()
+    this.activeReload()
+
     try {
       requestTransactionFreightCalculation({ 
         iduser : user.id,
@@ -320,26 +433,33 @@ class Transaction extends React.Component {
         federation_unity, 
         zipcode,
         codeservice : listService.filter((service) => service.active )[0].value }).then(({ response }) => {
-          console.log(response)
           console.log("---- aqui")
           this.setState({
             checkoutPayment : {
               ...checkoutPayment,
+              deadline : response.prazoEntrega,
               amountfreigth : response.valor
             }
           },() => {
             this.activeProcess("room",true)
+            this.activeReload()
           })
 
+        }).catch((error)=>{
+          this.activeReload()
+          console.warn("agora error")
         })
     } catch (error) {
       console.error(error)
+      this.activeReload()
     }
   }
 
   onRequestRegisterCardCredit = ({ iduser , card_number , card_expiration_date , card_cvv , card_holder_name  }) => {
 
     const { cardCredit } = this.state.typePayment
+
+    this.activeReload()
 
     try{
       requestRegisterCardCredit({ iduser , card_number , card_expiration_date , card_cvv , card_holder_name }).then(({ response }) => {
@@ -351,18 +471,78 @@ class Transaction extends React.Component {
               ...response
             }
           }
+        },() => {
+          this.activeProcess("attach-money",true)
+          this.activeReload()
         })
-        this.activeProcess("attach-money",true)
+      }).catch((error)=>{
+        this.activeReload()
       })
     }catch (error){
+      this.activeReload()
       console.error(error)
     }
     
   }
 
+  onRequestCheckout = () => {
+    const { user } = this.props
+    const { checkoutPayment , adress , typePayment } = this.state
+    const { city , street , street_number , neighborhood , country , complement , state , federation_unity , zipcode , shippingType  } = adress
+    const { cardCredit } = typePayment
+
+    this.activeReload()
+
+    console.warn("sim")
+
+    try {
+
+      requestCheckout({ 
+        iduser : user.id,
+        city, 
+        street,
+        street_number,
+        neighborhood,
+        country,
+        complement,
+        state,
+        federation_unity,
+        zipcode,
+        id_card : cardCredit.card_id_checkout,
+        installments : checkoutPayment.payInstallments ,
+        delivery_date : "",
+        shipping_date : "",
+        shipping_type : shippingType,
+        payment_method : checkoutPayment.typePayment,
+        order : "Produto de application",
+        phone : "15981135388",
+      }).then(({ response }) => {
+        if(!response.hasOwnProperty("errros")){
+          this.props.navigation.dispatch(navigationAppAction)
+          
+          this.props.userClearProducts([])
+          this.props.removeProductsAll()
+
+          this.activeReload()
+        }else{
+          console.warn("sim 404")
+        }
+
+      }).catch((error) => {
+        this.activeReload()
+        console.warn(error)
+      })
+      
+    } catch (error) {
+      this.activeReload()
+      console.warn(error)
+    }
+
+  }
+
   render() {
      
-    const { process , adress , typePayment , checkoutPayment  } = this.state
+    const { activeReload , process , adress , typePayment , checkoutPayment  } = this.state
     const { totalPrice , totalDescont } = this.props
 
     return (
@@ -504,8 +684,10 @@ class Transaction extends React.Component {
                   </View>
       
                   <View style={{ height : 120 , width : width , flexDirection : "row" , alignItems : "center" }} >
-                      <View style={{ flex : 1, paddingLeft : 40, alignItems : "flex-start" , justifyContent : "center"  }} >
+                      <View style={{ flex : 1, paddingLeft : 20, alignItems : "flex-start" , justifyContent : "flex-start" , flexDirection : "column"  }} >
                           <Text style={{ color : "white" , fontFamily: "Roboto", fontWeight : "500" , fontSize : 30 }} >{ numberToReal(checkoutPayment.amountfreigth,true) }</Text>
+                          <Text style={{ color : "white" , fontFamily : "Roboto" , fontWeight : "400" , fontSize : 16 , marginBottom : 5  }} > { checkoutPayment.deadline === null ? null : `Prazo de entrega : ${checkoutPayment.deadline} dia` }</Text>
+
                       </View>
                       <ButtonNext onPress={() => { this.processNext(item.icon,index) }} active={item.active} />
                   </View>
@@ -520,15 +702,15 @@ class Transaction extends React.Component {
 
                   <View style={{ flexDirection : "row" , marginTop : 40 }} >
                      <View style={{ flex : 1 , flexDirection : "row" , justifyContent : "center" , alignItems : "center" }} >
-                       <CardNavigator onPress={() => { this.navigatorTypeCheckout("card") } } style={{ marginRight : 20 }} title="Cartão" icon="credit-card" ></CardNavigator>
-                       <CardNavigator onPress={() => { this.navigatorTypeCheckout("ticket") } } title="Boleto" icon="credit-card" ></CardNavigator>
+                       <CardNavigator onPress={() => { this.navigatorTypeCheckout("credit_card") } } style={{ marginRight : 20 }} title="Cartão" icon="credit-card" ></CardNavigator>
+                       <CardNavigator onPress={() => { this.navigatorTypeCheckout("boleto") } } title="Boleto" icon="credit-card" ></CardNavigator>
                      </View>
                   </View>
      
                 <View style={{ flex : 1 , alignItems : "center" , justifyContent : "center" }} >
      
                   {
-                    checkoutPayment.typePayment === "card" ?
+                    checkoutPayment.typePayment === "credit_card" ?
                     <View style={{ flexDirection : "row" }} >
                      <View style={{ flex : 1 , backgroundColor : "white" , marginHorizontal : 15 , borderRadius : 4 }} >
                         <View style={styles.containerInput} >
@@ -540,7 +722,7 @@ class Transaction extends React.Component {
                             onChangeText={(name) => { this.setState({ typePayment : {  cardCredit : { ...typePayment.cardCredit , card_holder_name : name }  } }) }}
                           />
                         </View>
-                        <LiteCreditCardInput  style={{ flex : 1 }} onChange={(card) => { this.onChangeCardCredit(card) }} />
+                        <LiteCreditCardInput  style={{ flex : 1 }} onChange={(card) => { this.onChangeCardCredit(card) }} onValueChange={(v) => { alert("sim") }} />
                         
                         
                      </View>
@@ -571,25 +753,46 @@ class Transaction extends React.Component {
 
               if(item.icon === "shopping-cart"){
                 return (
-                    <View  key={index} style={{ justifyContent : "flex-start" , alignItems : "center" , flex : 1 , width : width }} >
-                       <View style={{ flexDirection : "row" }} >
-                         <View style={{ flex : 1 , marginHorizontal : 15, marginVertical : 25 , backgroundColor : "white" , padding : 15 }} >
+                    <View  key={index} style={{ justifyContent : "space-between" , alignItems : "center" , flex : 1 , width : width }} >
+                       <View style={{ flexDirection : "row" , alignSelf : "flex-start" }} >
+                       
+
+                         <View style={{ flex : 1 , marginHorizontal : 15, marginVertical : 15 , backgroundColor : "white" , padding : 15 }} >
+                           {
+                             checkoutPayment.typePayment == "credit_card" ? (
+                              <View style={{ flexDirection : "row" }} >
+                              <View style={{ flex : 1 }} >
+                                <Picker
+                                  selectedValue={checkoutPayment.payInstallments}
+                                  onValueChange={this.onChangeIntallments}
+                                >
+                                  {
+                                    new Array(checkoutPayment.installments).fill(0).map((installments,index) => (
+                                     <Picker.Item key={index} label={`Parcelar de ${index + 1} x ${ numberToReal(this.priceTotalCheckout() / (index + 1),true)} `} value={index + 1} ></Picker.Item>
+                                    ))
+                                  }
+                                </Picker>
+                              </View>
+                            </View>
+                             ) : null
+                           }
 
                            <View style={{ flexDirection : "row" }} >
                              <View style={{ flex : 1 , alignItems : "center" , flexWrap : "wrap" , justifyContent : "space-between" , flexDirection : "row" , marginBottom : 30 }} >
+                                
                                 <View style={[{ flexDirection : "column" , flexBasis : "50%" , justifyContent : "flex-start" , marginTop : 10 }]} >
                                   <Text style={{ fontSize : 14 , color : colors.lightGray , fontWeight : '400' }} >Tipo de Pagamento</Text>
-                                  <Text style={{ fontSize : 18 , marginTop : 4 , fontWeight : '400' }} >{ checkoutPayment.typePayment == "card" ? "Cartão" : "Boleto" }</Text>
+                                  <Text style={{ fontSize : 18 , marginTop : 4 , fontWeight : '400' }} >{ checkoutPayment.typePayment == "credit_card" ? "Cartão" : "Boleto" }</Text>
                                 </View>
                                 <View style={[{ flexDirection : "column" , flexBasis : "50%" , justifyContent : "flex-start" , alignItems : "flex-end" , marginTop : 10 }]} >
                                   {
-                                    checkoutPayment.typePayment == "card" ?
+                                    checkoutPayment.typePayment == "credit_card" ?
                                                       <View style={{ alignItems : "center" , justifyContent : "center" , flexDirection : "row-reverse" }} >
                                                           <Image source={{ uri :  typePayment.cardCredit.brand}} style={{ width : 66, height : 43 }} resizeMethod="resize" resizeMode="contain" />
                                                           <Text style={{ marginRight : 5 , color : "black", fontSize : 18 , fontWeight : "500" }} >{ typePayment.cardCredit.card_number.substr(12,16) }</Text>
                                                       </View> :
                                                       <View style={{ alignItems : "center" , justifyContent : "center" , flexDirection : "row" }} >
-                                                           <Image source={{ uri : "" }} />
+                                                           <Image style={{ width : 66 , height : 43 }}  source={{ uri : "http://10.0.2.2:8000/cardcredit/media/images_icons/boleot.png" }} resizeMode="cover"  />
                                                       </View>
                                   }
                                 </View>
@@ -597,18 +800,23 @@ class Transaction extends React.Component {
                            </View>
 
                            <CardInfomation  cards={[
+                             { title : "Prazo de Entrega" , desc : `${checkoutPayment.deadline} Dia` , style : { flexBasis : "100%" } },
                              { title : "Total Produtos" , desc : numberToReal(totalPrice(),true) },
                              { title : "Desconto" , desc : numberToReal(totalDescont(),true) , style : { alignItems : "flex-end" } },
                              { title : "Total Frete" , desc : numberToReal(checkoutPayment.amountfreigth,true) },
                              { title : "Total", desc : numberToReal(this.priceTotalCheckout(),true) , style : { alignItems : "flex-end" }}]} />
                          </View>
                        </View>
+                       <View style={{flexDirection : "row" }} >
+                         <TouchableNativeFeedback onPress={this.onRequestCheckout} >
+                            <View style={{ flex : 1 , marginHorizontal : 20 , marginBottom : 10 , alignItems : "center" , justifyContent : "center" ,backgroundColor : colors.lightGreen , height : 50 }} >
+                              <Text style={{ color : "white" , fontWeight : "500" , fontSize : 18 }} >Fazer Pagamento</Text>
+                            </View>
+                         </TouchableNativeFeedback>
+                       </View>
                     </View>
                 )
-                   
-
               }
-               
               })
             }
 
@@ -621,9 +829,10 @@ class Transaction extends React.Component {
                     <TSCheck key={index} onPress={ () => this.checkSelectService(item.value)} title={item.title} value={item.value} active={item.active} />
                  ))
                }
-                
              </View>
           </TSCardElevation>
+
+          <TSReloadApplication active={activeReload} />
 
           {/* <ScrollView
            ref={(anapScroll) => { this.anapScroll = anapScroll }}
@@ -648,8 +857,9 @@ export const stateMapProps = state => ({
   }
 })
 
+export const dispatchProps = dispatch => bindActionCreators({ userClearProducts , removeProductsAll },dispatch)
 
-export default connect(stateMapProps)(Transaction)
+export default connect(stateMapProps,dispatchProps)(Transaction)
 
 const styles = StyleSheet.create({
     container : {

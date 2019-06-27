@@ -286,10 +286,13 @@ class Produtcs extends React.Component {
       >
         <View style={styles.headerFilter}>
           <TouchableNativeFeedback
-            style={styles.buttonFilter}
             onPress={this.navigatefilterProducts.bind(this)}
           >
-            <Image  source={require("../../assets/icons/png/filter_shash.png")} style={{ width : 25 , height : 25 }} />
+            <View style={styles.buttonFilter} >
+                <Text style={styles.textFilter} >Filtrar</Text>
+                <Image  source={require("../../assets/icons/png/filter_shash.png")} style={{ width : 25 , height : 25 }} resizeMethod="resize" resizeMode="contain" />
+            </View>
+            
           </TouchableNativeFeedback>
         </View>
 
@@ -365,13 +368,23 @@ const styles = StyleSheet.create({
     width,
     height: 30,
     paddingHorizontal: 10,
-    marginTop: 95,
+    marginTop: 100,
     paddingBottom : 15,
+  },
+  textFilter : {
+    color : colors.lightSlash,
+    fontSize : 16,
+    marginRight : 5
   },
   buttonFilter: {
     borderBottomColor: colors.slashStrong,
     borderWidth: 2,
-    borderLeftWidth: -50
+    borderLeftWidth: -50,
+    borderRadius : 4,
+    borderColor : colors.lightSlash,
+    alignItems : "center",
+    flexDirection : "row",
+    padding : 5
   },
   buttonFiltertext: {
     color: "white"

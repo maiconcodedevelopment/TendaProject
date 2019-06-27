@@ -42,6 +42,7 @@ import { userAddAndRemoveProduct } from "../../redux/actions/Users";
 import { CardProduct } from "../../components/cardProduct";
 import { HeaderBack } from "../../components/headerBack";
 import TSCardElevation from "../../components/card/ts-cart-elevation";
+import TDStatus from "../../components/alert/td-status";
 
 const resetAction = function({params}){
   return StackActions.reset({
@@ -133,7 +134,8 @@ class Product extends React.Component {
       id : this.props.navigation.state.params.id,
       scrollY: new Animated.Value(0),
       like : new Animated.Value(1),
-      activeModal : false
+      activeModal : false,
+      activeBarStatus : false
     };
 
     
@@ -145,16 +147,19 @@ class Product extends React.Component {
     this.aniamVal = new Animated.Value(0)
   }
 
-  async componentDidMount(){
+   requestProductsList = async () => {
     const { user } = this.props
     await requestProductrelated(this.state.id,user.id).then((response) => {
-      console.log("products list related")
       this.setState((state) => {
         return {
           productsList : response
         }
       })
     })
+  }
+
+  componentDidMount(){
+    this.requestProductsList()
   }
 
   async componentDidUpdate(){
@@ -165,11 +170,16 @@ class Product extends React.Component {
   }
 
   componentWillReceiveProps(nextProps){
-    console.log("nextprops -----")
-    console.log(nextProps)
-   this.setState({ product : nextProps.navigation.state.params })
-   console.log("nextprops -----")
-   
+
+   if(nextProps.navigation.state.params.id !== this.state.product.id){
+    const { user } = this.props
+    this.setState({ id : nextProps.navigation.state.params.id },() => {
+      this.requestProductsList()
+    })
+    this.setState({ product : nextProps.navigation.state.params })
+
+   }
+
   }
 
   screenLikeProduct = () => {
@@ -209,9 +219,10 @@ class Product extends React.Component {
         ...productUpdate,
         like : !productUpdate.like
       }
+
   
       let productsUpdate = productsList.map(product => product.id == productUpdate.id ? productUpdate : product)
-  
+
       this.setState({
         productsList : productsUpdate
       })
@@ -231,12 +242,27 @@ class Product extends React.Component {
         this.props.userAddProduct(id);
         this.props.userAddAndRemoveProduct(response);
 
-        this.setState({
-          product : {
-            ...product,
-            like : response.like 
-          }
-        })
+        const { like } = response
+
+        if(like){
+          this.setState({
+            activeBarStatus : true
+          })
+        }
+
+        if(response.id == this.state.product.id){
+            
+            this.setState({
+              product : {
+                ...product,
+                like : response.like 
+              }
+            },() => {
+              
+            })
+
+        }
+
       })
       .catch(error => {
         console.log(error);
@@ -500,8 +526,7 @@ class Product extends React.Component {
           <View >
             <ScrollView showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft : 25 }} horizontal={true}  >
              {
-               productsList.map((item) => {
-                console.log(item) 
+               productsList.map((item,index) => {
                 return (
                   <View key={item.id} >
                   <CardProduct
@@ -527,6 +552,7 @@ class Product extends React.Component {
 
         </Animated.ScrollView>
         <ModalDescription title={name} active={this.state.activeModal} description={about} onPressDesactive={() => { this.setState({ activeModal : false }) }} />
+        <TDStatus active={this.state.activeBarStatus} callbackActive={() => { this.setState({ activeBarStatus : false }) }} />
       </ContainerLayout>
     );
   }

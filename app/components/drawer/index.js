@@ -31,6 +31,12 @@ class Sidebar extends React.Component{
               <Image source={require('../../assets/icons/png/car_love.png')} style={{ width : 25, height : 25 }}  />
            </View>
            </TouchableNativeFeedback>
+           <TouchableNativeFeedback onPress={() => navigation.dispatch(navigationActionCartProducts) } >
+           <View style={{ flexDirection : "row" , alignItems : "center" , justifyContent  : "space-between" , paddingHorizontal : 20 , paddingVertical : 15 }} >
+              <Text style={{ fontWeight : "500" }} >Produtos Comprados</Text>
+              <Image source={require('../../assets/icons/png/car_love.png')} style={{ width : 25, height : 25 }}  />
+           </View>
+           </TouchableNativeFeedback>
         </ScrollView>
       </View>
     )
